@@ -1,0 +1,5 @@
+INPUT   += @srcdir@/mainpage.txt \
+           @srcdir@/modules.txt \
+           @top_srcdir@/dune
+EXCLUDE += @top_srcdir@/dune/pdelab/test
+EXTRA_PACKAGES = amsmath, amssymb

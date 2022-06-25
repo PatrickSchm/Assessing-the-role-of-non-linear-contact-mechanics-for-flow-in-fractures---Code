@@ -1,0 +1,18 @@
+Performing C SOURCE FILE Test C_SUPPORTS_DOLLAR succeeded with the following output:
+Change Dir: /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/FortranCInterface/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_08f7f/fast"
+/usr/bin/make -f CMakeFiles/cmTC_08f7f.dir/build.make CMakeFiles/cmTC_08f7f.dir/build
+make[1]: Entering directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/FortranCInterface/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_08f7f.dir/src.c.o
+/usr/bin/gcc   -DC_SUPPORTS_DOLLAR   -o CMakeFiles/cmTC_08f7f.dir/src.c.o   -c /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/FortranCInterface/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_08f7f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_08f7f.dir/link.txt --verbose=1
+/usr/bin/gcc  -DC_SUPPORTS_DOLLAR    CMakeFiles/cmTC_08f7f.dir/src.c.o  -o cmTC_08f7f 
+make[1]: Leaving directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/FortranCInterface/CMakeFiles/CMakeTmp'
+
+Source file was:
+
+extern int dollar$(void);
+int main() { return 0; }
+

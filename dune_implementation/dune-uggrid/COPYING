@@ -1,0 +1,80 @@
+UG -- a software framework for finite element methods
+
+
+COPYRIGHT
+---------
+
+Copyright (C) 1994-1998            Universität Stuttgart
+              1992-1994, 1998-2014 Universität Heidelberg
+
+
+AUTHORS
+-------
+
+Authors of the UG software are:
+(name in parentheses is is the login name visible in the vcs logs)
+
+Bernhard Huurdemann     (bernhard)
+Klaus Birken            (birken)
+Carsten Schwarz         (carsten)
+Christian Wagner        (chris)
+                        (christia)
+                        (christian)
+Christian Engwer        (christi)
+Christoph Reisinger     (christop)
+Christoph Reisinger     (creising)
+                        (df)
+Dirk Feuchter           (dirk)
+Dmitriy Logachenko      (dmitriy)
+Peter Frolkovic         (frolko)
+Gabi Beddies            (gabi)
+George Mazukiewicz      (george)
+Achim Gordner           (gordner)
+Christoph Grüninger     (gruenich)
+Andreas Hauser          (hauser)
+Henrik Rentz-Reichert   (henrik)
+Ingo Heppner            (ingo)
+Jorrit Fahlke           (joe)
+Jürgen Bey              (juergen)
+                        (kathrin)
+Klaus Johannsen         (klaus)
+Michael Lampe           (lampe)
+Stefan Lang             (langsn)
+Markus Blatt            (mblatt)
+Niko Neuss              (niko)
+Oliver Sterz            (os)
+Sebastien Paxion        (paxion)
+Peter Bastian           (peter)
+Philip Broser(?)        (philip)
+Volker Reichenberger    (reichenb)
+                        (root)
+Oliver Sander           (sander)
+Sandra Nägele           (sandra)
+Stefan Lang             (stefan)
+Thimo Neubauer          (thimo)
+                        (UG-GRAPE)
+                        (ugtest)
+                        (ug)
+Christian Wieners       (wieners)
+
+Steffen Müthing
+
+
+
+
+LICENSE
+-------
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA

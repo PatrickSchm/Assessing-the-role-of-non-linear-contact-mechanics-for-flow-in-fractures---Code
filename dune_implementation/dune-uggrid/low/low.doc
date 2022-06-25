@@ -1,0 +1,93 @@
+/****************************************************************************/
+/*D
+   heaps - Memory handling by the use of 'heaps'
+
+   DESCRIPTION:
+   All these functions initialize ('InitHeaps', 'NewHeap') and support the
+   handling of the dynamic memory management used by 'ug'. The main idea
+   is that ug allocates only once for one problem a big portion of memory,
+   and administrates the internal, dynamic memory use with 'heaps' by itself.
+
+   Three different types of 'heaps' are possible: 'SIMPLE_HEAP',
+   'GENERAL_HEAP' and 'VIRTUAL_HEAP'
+
+   If the heap type is 'SIMPLE_HEAP' new blocks in the allocated memory
+   ('GetMem') can be taken either from the top or from the bottom using two
+   different pointers. They are in- or decremented block-wise for each
+   internal memory allocation ('Mark', 'Release'). These blocks can also be
+   handled recursively in the same way. In other words the total memory
+   block to be provided for ug is used from both sides by introducing
+   recursively new, smaller blocks, as shown below.
+
+.vb
+      --------------------------------
+      | 1 | 3 |  4  |           |  2 |   total allocated memory for ug
+      --------------------------------
+      used blocks are #1,#2,#3 and #4
+
+      -----
+      |5|6|   block #4 is separated also in block #5 and #6
+      -----
+
+.ve
+
+   If the heap type is 'GENERAL_HEAP' new blocks to be introduced in the
+   total allocated memory for ug are laid at the position where enough
+   memory is free ('GetMem'). The search for this position is done by
+   running round the total allocated memory, looking for the equivalent
+   space and introducing the new block, as shown below. These blocks can be
+   erased by 'DisposeMem'.
+   
+.vb
+      --------------------------------
+      |   |  1  |               |  2 |   total allocated memory for ug
+      --------------------------------
+      used blocks are #1 and #2
+      
+      block to be introduced #3:  |  3  |
+      start position at the beginning
+   
+      --------------------------------
+      |   |  1  |  3  |         |  2 |   total allocated memory for ug
+      --------------------------------
+
+.ve
+      
+   If the heap type is 'VIRTUAL_HEAP' some memory can be allocated virtually
+   for later use and can be handled independently of the heaps. For example 
+   the memory management can be told to use a certain amount of memory at each
+   time when a new heap is installed. As the management can handle virtual 
+   heaps it offers the possibility to treat several heaps completely analogous. 
+   The total size should then be determined by a call of 'CalcAndFixTotalSize' 
+   when the first of those heaps is actually allocated. Blocks are installed 
+   by 'DefineBlock' and erased by 'FreeBlock'.
+
+   There are two reasons for employing the virtual heap management.
+
+   Creating a block partitioning before the heap is allocated: For a
+   reservation of memory for higher modules the lower module will first have
+   to pass a pointer to the memory allocated for the virtual heap management
+   (with size 'SIZEOF_BHM') to the 'InitVirtualHeapManagement'. 'GetNewBlockID'
+   is called to get a unique ID for a block descriptor. Then 'DefineBlock'
+   is called to tell the virtual heap management the size this block has
+   to assume. This way each higher module can have its own block in the heap
+   to be allocated. After the call of 'CalcAndFixTotalSize' to determine and
+   fix the total size of the heap it will be allocated.
+
+   Getting information about blocks by the heap management: When 
+   a higher module has access to a certain kind of heaps
+   (with same and known size) allocated by a lower module the virtual heap
+   management offers the possibility of querying whether a block
+   has been defined for a certain heap. If it is defined a question for
+   the offset is done, if not it will be defined right now.
+
+   Be careful! As the location of the block descriptors is not fixed in the
+   heap management, get always its address with 'GetBlockDesc()' if needed.
+
+   SEE ALSO:
+   InitHeaps, NewHeap, GetMem, DisposeMem, Mark, Release, HeapSize,
+   HeapUsed, InitVirtualHeapManagement, CalcAndFixTotalSize, GetNewBlockID,
+   GetBlockDesc, DefineBlock, FreeBlock 
+D*/
+/****************************************************************************/
+

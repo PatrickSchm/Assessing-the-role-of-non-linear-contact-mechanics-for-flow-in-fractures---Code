@@ -1,0 +1,35 @@
+# CMake generated Testfile for 
+# Source directory: /home/paddy/pkg/dune_2d/dune-grid/dune/grid/test
+# Build directory: /home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+add_test(geometrygrid-coordfunction-copyconstructor "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/geometrygrid-coordfunction-copyconstructor")
+set_tests_properties(geometrygrid-coordfunction-copyconstructor PROPERTIES  PROCESSORS "1" REQUIRED_FILES "geometrygrid-coordfunction-copyconstructor" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-geogrid-yaspgrid "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-geogrid-yaspgrid")
+set_tests_properties(test-geogrid-yaspgrid PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-geogrid-yaspgrid" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-geogrid-uggrid "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-geogrid-uggrid")
+set_tests_properties(test-geogrid-uggrid PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-geogrid-uggrid" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-gridinfo "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-gridinfo")
+set_tests_properties(test-gridinfo PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-gridinfo" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-identitygrid "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-identitygrid")
+set_tests_properties(test-identitygrid PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-identitygrid" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-oned "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-oned")
+set_tests_properties(test-oned PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-oned" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-mcmg-geogrid "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-mcmg-geogrid")
+set_tests_properties(test-mcmg-geogrid PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-mcmg-geogrid" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(testiteratorranges "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/testiteratorranges")
+set_tests_properties(testiteratorranges PROPERTIES  PROCESSORS "1" REQUIRED_FILES "testiteratorranges" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-hierarchicsearch "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-hierarchicsearch")
+set_tests_properties(test-hierarchicsearch PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-hierarchicsearch" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-ug "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-ug")
+set_tests_properties(test-ug PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-ug" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-parallel-ug "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-parallel-ug")
+set_tests_properties(test-parallel-ug PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-parallel-ug" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-parallel-ug-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-parallel-ug")
+set_tests_properties(test-parallel-ug-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-parallel-ug" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-loadbalancing "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/test-loadbalancing")
+set_tests_properties(test-loadbalancing PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-loadbalancing" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(issue-53-uggrid-intersections "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/issue-53-uggrid-intersections")
+set_tests_properties(issue-53-uggrid-intersections PROPERTIES  PROCESSORS "1" REQUIRED_FILES "issue-53-uggrid-intersections" SKIP_RETURN_CODE "77" TIMEOUT "300")
+subdirs("yasp")

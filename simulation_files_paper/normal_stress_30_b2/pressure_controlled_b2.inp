@@ -1,0 +1,50 @@
+# Configuration file for the example program - solid/box_2d -
+[info]
+input_folder = "/media/paddy/local1/simulation_for_papers/on_the_importance_of_non_linear_hydro_mechanics_for_the_analysis_of_harmonic_tests_of_single_fractures/simulations/pressure_controlled_b2/"
+
+[intVar]
+required = true
+name = delta p length sigma_n rad
+
+[geom]
+x = 0.15
+y = 1.000025
+dim_high = 2
+msh_high = "/media/paddy/local1/simulation_for_papers/on_the_importance_of_non_linear_hydro_mechanics_for_the_analysis_of_harmonic_tests_of_single_fractures/simulations/pressure_controlled_b2/mesh/non_linear_pf_meter.msh_inter"
+
+[para_porous]
+# Umliegende Matrix
+K = 22000e6 22000e6
+Ks = 46000e6 46000e6
+G = 17700e6 17700e6
+gammaw = 9810.0 9810.0 9810.0
+per_x = 5.e-24 5.e-24
+per_y = 5.e-24 5.e-24
+per_z = 5.e-24 5.e-24
+por = 0.01 0.01
+
+# Riss
+delta_0 = 1.2e-3
+
+eta = 1.e-3
+perTan = 0.0
+EFrac = 1.4e6
+
+# Fluid in Riss und umliegender Matrix identisch
+Kfl = 2400e6 2400e6
+
+[boundaries]
+pressure = 20000.0
+displacement = 0.0
+
+[domain]
+level = 0
+
+[out]
+outPath = "/media/paddy/local1/simulation_for_papers/on_the_importance_of_non_linear_hydro_mechanics_for_the_analysis_of_harmonic_tests_of_single_fractures/paper_results/"
+outFn = "normal_stress_30_b2"
+[solver]
+theta   = 1.0
+t_start = 0.0
+t_end   = 1060
+dt      = 0.1

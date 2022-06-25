@@ -1,0 +1,147 @@
+HOWTO for UG
+============
+
+Purpose:
+	- explain gory practical or conceptual details when using UG 
+	- with growing contents it should be a helpful
+	  and time saving database
+
+Structure:
+	- explanations are structured in a module by module 
+	  manner
+
+Usage:
+	- grep this HOWTO via keywords or 
+    - try to find a section of interest concerning with
+	  the problem you have
+
+Extensions:
+	- evereyone using UG is welcome to contribute
+	- please document all problems, also these which seem
+	  to be "easy" or clear after you solved them.
+	  Our mind is a subtile thing.
+
+Mantainance:
+	- should get a small rework of its structure and
+	  content every few month(?)
+
+
+General:
+-------
+
+Which sources of information exist about UG?
+- UG homepage: http://cox.iwr.uni-heidelberg.de/~ug
+- ug tutorial
+- inline documentation in commands.c about ug script commands.
+
+
+UG/ug/graphics/uggraph:
+----------------------
+
+Vector plotobject:
+
+-	How can I change the size of vectors?
+
+	Use "setplotobject EVector $c 0 $t 0.1 $l <n>", 
+	where $c 0 indicated no cutting of vectors,
+	$l <n> is the cutlengthfactor between [0.1,10].  
+	Additionally use "findrange $z <f>"  <f> in [0.1,0.25]
+	to scale the values.
+	See also UG/ug/graphics/uggraph/wpm.c: EVector2D,EVector3D
+	See also UG/ug/graphics/uggraph/wop.c: EVector2D,EVector3D
+	
+
+UG/ug/gm:
+--------
+
+Q: How to use periodic boundary conditions with UG?
+
+A: To compile UG set in file UG/ug/gm/gm.h the define
+	#define __PERIODIC_BOUNDARY__
+Then fully (re)compile UG.
+To define periodic boundaries write an application function
+	PeriodicBoundaryInfoProcPtr PBI
+for its prototype see gm.h.
+This function must be provided to UG via a call to
+	INT SetPeriodicBoundaryInfoProcPtr (PeriodicBoundaryInfoProcPtr PBI);
+When you have readin/constructed the coarse grid. One script call to
+the command 
+	makeperiodic
+will modify the grid appropriately. From this point on all 
+functionality (adaption, solution) work transparently (without any
+further effort) in periodic mode.
+
+An example of periodidc usage is in course/appl/couplex2/couplex2.c
+the function 
+	Couplex2_PeriodicBoundaryInfo.
+In script file course/appl/couplex2/couplex2.scr you can see when
+"makeperiodic" is called. The SetPeriodicBoundaryInfoProcPtr call is
+done in the separate application command "setperiodic".
+
+
+
+UG/ug/np:
+--------
+
+Q: How to compile UG/ug/np with large format to compute large coupled
+   systems?
+
+A: 
+The following text describes how to make UG to accept up to 180 components
+in every vector descriptor. Be aware that this has not been completely tested
+yet. Use it on your own risk!
+
+1. In 'ug/gm/gm.h', set MSIZEMAX to 4294967295U in the '#else' section of
+   '#ifndef __XXL_MSIZE__'. (The old value is 10000000.)
+
+2. Redefine 'SHORT' from 'short' to 'int' for all the architectures in
+   'ug/arch/compiler.h'. (DEC, LINUXAXP, LINUXIA64, NECSX4, SR2201 - Can
+   'int' be too short? - INT is defined to be 'long'.)
+
+3. You may reset 'MAX_SUB' in 'ug/np/udm/formats.h'. The default value is
+   12. This macro should determine the maximal number of subcomponents
+   declared in the 'format' command. We set it now to 180.
+
+4. Redefine A_REASONABLE_NUMBER in 'ug/np/udm/udm.c' from 100 to 180.
+   (A better way would be perhaps to delete lines 2656-2657 in this file
+   - the only lines where this macro occures. These contain merely
+   ASSERT's and do not influence the functionality of the code principally.)
+
+5. In 'ug/np/udm/udm.h', make the following changes:
+   a) set MAX_SINGLE_VEC_COMP and MAX_VEC_COMP to 180. (The old value is 40.)
+   b) set MAX_SINGLE_MAT_COMP to 32400 (= 180 * 180). (The old value is 1600 =
+      40 * 40.)
+   c) set MAX_MAT_COMP and MAX_MAT_COMP_TOTAL to 64800 (= 2 * 180 * 180).
+      (The old value is 7000.)
+   There can be conflicts with the default names of components (cf.
+   DEFAULT_NAMES in this file), but they should not lead to problems.
+
+6. Note that there are only sizeof (INT) * 8 skip flags in UG. This make no
+   problem for the sequential computations. For the parallel computations,
+   there are two possibilities: a) All your skip flags are equal, or
+   b) Define the macro _XXL_SKIPFLAGS_ in 'ug/np/algebra/ugblas.c'. In the
+   latter case, the skip flag with index (sizeof (INT) * 8 - 1) is used
+   for all components with indices >= (sizeof (INT) * 8 - 1).
+
+
+UG/ug/ui:
+--------
+
+Q: How to save and load data without saving and loading the multigrid?
+
+A: Saving data without the multigrid is done by using the option '$p' in the
+   savedata-command ('p' for save pure data). Example:
+        savedata test $t xdr $a sol $p;
+   Loading the data without the multigrid can be done by adding the option
+   '$r' in the loaddata-command ('r' for read only data). Example:
+        loaddata test $t xdr $a sol $r;
+
+
+UG/ug/arch:
+--------
+
+Q: Why does my newly compiled UG application fail during load migration
+	with an error signal?
+
+A: Compile again.  Do a "module switch cc cc.3.3.0.1" before recompilation!
+	The new cray compiler has an unfixed bug.

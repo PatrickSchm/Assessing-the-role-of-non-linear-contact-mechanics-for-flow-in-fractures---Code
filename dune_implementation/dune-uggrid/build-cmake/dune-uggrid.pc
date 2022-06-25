@@ -1,0 +1,13 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+parallel=yes
+fordune=yes
+
+Name: libug
+Version: 2.7-git
+Description: library for the discretization of PDEs on unstructured grids
+Requires:
+Libs: -L${libdir} -ldevS
+Cflags: -I${includedir} -DUG_USE_SYSTEM_HEAP=1 -DUGLIB -DModelP

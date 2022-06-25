@@ -1,0 +1,41 @@
+GXX_WARNING_OPTS=" \
+    -Wall \
+    -Wunused \
+    -Wmissing-include-dirs \
+    -Wcast-align \
+    -Wno-sign-compare \
+    -Wno-unused-parameter \
+    -Wno-deprecated-declarations \
+    "
+
+# additional -W flags for g++ which will lead to many warnings
+#    -Wextra \
+#    -Wfloat-equal \
+#    -Wstrict-overflow \
+
+GXX_OPTS=" \
+    -fno-strict-aliasing \
+    -fstrict-overflow \
+    -fno-finite-math-only \
+    -fopenmp \
+    -O3 \
+    -std=c++17 \
+  	-L/opt/intel/compilers_and_libraries_2018.3.222/linux/mkl/lib/intel64 \
+    -lgmp \
+    -lmpfr \
+    -march=native \
+    -lmkl_rt\
+    -lpthread\
+    -lm -ldl\
+    -m64 -lstdc++fs
+"
+
+USE_CMAKE=yes
+
+CMAKE_FLAGS="-DCMAKE_CXX_FLAGS=\"$GXX_WARNING_OPTS $GXX_OPTS\" -DCMAKE_CXX_COMPILER=/usr/bin/g++  -DCMAKE_C_COMPILER=/usr/bin/gcc -DDUNE_GRID_EXPERIMENTAL_GRID_EXTENSIONS=TRUE " 
+
+
+# for CO2 and CO2ni tests
+# -DDUNE_GRID_EXPERIMENTAL_GRID_EXTENSIONS=TRUE \
+# need to be set in the CMake flags
+# and the module dune-alugrid must be present

@@ -1,0 +1,25 @@
+// -*- mode: c++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+// vi: set et ts=8 sw=8 sts=2:
+/* This file determines the order how things appear in the doxygen
+   documentation within the Geometry group. It works like this:
+
+   @defgroup commands appear only in this file here which is
+   parsed before the other files (because it is mentioned first 
+   in the Doxyfile).
+
+   Only @addtogroup is used in the code documentation.
+*/
+/** @defgroup Geometry dune-geometry
+ */
+/**   @defgroup GeometryType Geometry Type
+ *    @ingroup Geometry
+ */
+/**   @defgroup GeometryReferenceElements Reference Elements
+ *    @ingroup Geometry
+ */
+/**   @defgroup GenericGeometry Generic Geometry
+ *    @ingroup Geometry
+ */
+/**   @defgroup Quadrature Quadrature
+ *    @ingroup Geometry
+ */

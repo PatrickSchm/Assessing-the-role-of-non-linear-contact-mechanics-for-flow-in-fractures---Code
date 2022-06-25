@@ -1,0 +1,47 @@
+INPUT                 += @srcdir@/mainpage.txt \
+                         @srcdir@/modules.txt \
+                         @top_srcdir@/dune/grid/modules.txt \
+                         @top_srcdir@/dune/grid/albertagrid \
+                         @top_srcdir@/dune/grid/albertagrid.hh \
+                         @top_srcdir@/dune/grid/common \
+                         @top_srcdir@/dune/grid/geometrygrid.hh \
+                         @top_srcdir@/dune/grid/geometrygrid \
+                         @top_srcdir@/dune/grid/identitygrid.hh \
+                         @top_srcdir@/dune/grid/identitygrid \
+                         @top_srcdir@/dune/grid/io \
+                         @top_srcdir@/dune/grid/onedgrid.hh \
+                         @top_srcdir@/dune/grid/uggrid.hh \
+                         @top_srcdir@/dune/grid/uggrid/uggridfactory.hh \
+                         @top_srcdir@/dune/grid/utility \
+                         @top_srcdir@/dune/grid/yaspgrid.hh \
+                         @top_srcdir@/dune/grid/yaspgrid
+
+# The EXAMPLE_PATH tag can be used to specify one or more files or 
+# directories that contain example code fragments that are included (see 
+# the \include command).
+
+EXAMPLE_PATH          += @top_srcdir@/doc/grids/dgf 
+
+# If the value of the EXAMPLE_PATH tag contains directories, you can use the 
+# EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
+# and *.h) to filter out the source-files in the directories. If left 
+# blank all files are included.
+
+EXAMPLE_PATTERNS      += *.dgf
+
+# The IMAGE_PATH tag can be used to specify one or more files or 
+# directories that contain image that are included in the documentation (see 
+# the \image command).
+
+IMAGE_PATH            += \
+                         @top_srcdir@/dune/grid/yaspgrid \
+                         @top_srcdir@/dune/grid/common \
+                         @top_srcdir@/dune/grid/io/file/dgfparser/test \
+                         @top_srcdir@/dune/grid/geometrygrid
+
+PREDEFINED            += \
+                         HAVE_ALBERTA:=1 \
+                         HAVE_UG:=1
+
+EXCLUDE               += \
+                         @top_srcdir@/dune/grid/io/file/amiramesh/psurface.cc

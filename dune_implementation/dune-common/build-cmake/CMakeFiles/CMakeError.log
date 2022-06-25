@@ -1,0 +1,86 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_514d3/fast"
+/usr/bin/make -f CMakeFiles/cmTC_514d3.dir/build.make CMakeFiles/cmTC_514d3.dir/build
+make[1]: Entering directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_514d3.dir/CheckSymbolExists.c.o
+/usr/bin/gcc   -fPIE   -o CMakeFiles/cmTC_514d3.dir/CheckSymbolExists.c.o   -c /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_514d3
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_514d3.dir/link.txt --verbose=1
+/usr/bin/gcc      -rdynamic CMakeFiles/cmTC_514d3.dir/CheckSymbolExists.c.o  -o cmTC_514d3 
+CMakeFiles/cmTC_514d3.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_514d3.dir/build.make:86: recipe for target 'cmTC_514d3' failed
+make[1]: *** [cmTC_514d3] Error 1
+make[1]: Leaving directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp'
+Makefile:121: recipe for target 'cmTC_514d3/fast' failed
+make: *** [cmTC_514d3/fast] Error 2
+
+File /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the Fortran sgemm exists failed with the following output:
+Change Dir: /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_77526/fast"
+/usr/bin/make -f CMakeFiles/cmTC_77526.dir/build.make CMakeFiles/cmTC_77526.dir/build
+make[1]: Entering directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp'
+Building Fortran object CMakeFiles/cmTC_77526.dir/testFortranCompiler.f.o
+/usr/bin/gfortran   -O3 -DNDEBUG -O3 -fPIE   -c /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp/testFortranCompiler.f -o CMakeFiles/cmTC_77526.dir/testFortranCompiler.f.o
+Linking Fortran executable cmTC_77526
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_77526.dir/link.txt --verbose=1
+/usr/bin/gfortran      -O3 -DNDEBUG -O3 CMakeFiles/cmTC_77526.dir/testFortranCompiler.f.o  -o cmTC_77526 
+CMakeFiles/cmTC_77526.dir/testFortranCompiler.f.o: In function `main':
+testFortranCompiler.f:(.text.startup+0x1d): undefined reference to `sgemm_'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_77526.dir/build.make:86: recipe for target 'cmTC_77526' failed
+make[1]: *** [cmTC_77526] Error 1
+make[1]: Leaving directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp'
+Makefile:121: recipe for target 'cmTC_77526/fast' failed
+make: *** [cmTC_77526/fast] Error 2
+
+
+Performing C++ SOURCE FILE Test TBB_COMPILE_TEST failed with the following output:
+Change Dir: /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0d295/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0d295.dir/build.make CMakeFiles/cmTC_0d295.dir/build
+make[1]: Entering directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_0d295.dir/src.cxx.o
+/usr/bin/g++  -D_TBB_CPP0X  -std=c++17  -Wall -Wunused -Wmissing-include-dirs -Wcast-align -Wno-sign-compare -Wno-unused-parameter -Wno-deprecated-declarations -fno-strict-aliasing -fstrict-overflow -fno-finite-math-only -fopenmp -O3 -std=c++17 -L/opt/intel/compilers_and_libraries_2018.3.222/linux/mkl/lib/intel64 -lgmp -lmpfr -march=native -lmkl_rt -lpthread -lm -ldl -m64 -lstdc++fs -DTBB_COMPILE_TEST -O3 -DNDEBUG -fPIE   -o CMakeFiles/cmTC_0d295.dir/src.cxx.o -c /home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp/src.cxx
+/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: tbb/tbb.h: Datei oder Verzeichnis nicht gefunden
+ #include <tbb/tbb.h>
+          ^~~~~~~~~~~
+compilation terminated.
+CMakeFiles/cmTC_0d295.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_0d295.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_0d295.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/paddy/pkg/dune_2d/dune-common/build-cmake/CMakeFiles/CMakeTmp'
+Makefile:121: recipe for target 'cmTC_0d295/fast' failed
+make: *** [cmTC_0d295/fast] Error 2
+
+Source file was:
+
+#include <tbb/tbb.h>
+#include <numeric>
+
+int main()
+{
+  int x[10] = {0};
+  tbb::parallel_for(0,10,[&](int i){ x[i] = i; });
+  return !(std::accumulate(x,x+10,0) == (9*10)/2);
+}
+

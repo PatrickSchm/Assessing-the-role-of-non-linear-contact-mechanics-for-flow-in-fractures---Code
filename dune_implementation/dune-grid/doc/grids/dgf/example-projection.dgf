@@ -1,0 +1,21 @@
+DGF
+
+VERTEX
+-1 -1
+ 1 -1
+-1  1
+ 1  1
+#
+
+CUBE
+0 1 2 3
+#
+
+PROJECTION
+function p(x) = sqrt(2) * x / |x|
+function id(x) = x
+segment 0 1 id
+default p
+#
+
+# example-projection.dgf

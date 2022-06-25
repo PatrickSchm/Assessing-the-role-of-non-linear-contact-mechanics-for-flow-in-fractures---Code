@@ -1,0 +1,412 @@
+/* modules.doc*/
+
+/*D
+   modules - survey of the structure of the ug software
+   
+OVERVIEW:
+   Basically the UG source code is divided into three parts. The problem-
+   independent `ug library`, the `problem class libraries`, that implement
+   discretization, solvers, error estimators for a specific partial
+   differential equation and the `applications` that use all these libraries
+   to construct an executable. A problem class library together with its
+   applications is called an `experimental environment` in some places
+   of this manual.
+   
+UG KERNEL:
+   The problem-independent part of ug (the ug kernel) is itself structured
+   into several layers. These layers correspond directly to the subdirectories
+   of the 'ug31/ug' directory. From top to bottom (high level to low level)
+   these layers are explained in the following list.
+
+.   'configuring~information~(config)' - Contains configuration files that parametrize
+    the ug library to be build. These files are processed by the makefiles.
+
+.   'user~interface~(ui)' -
+	The core of 'ui' is a command interpreter which provides a script language and gives access to 
+	commands of your application. This allows to type in all commands directly into the command line
+	interface furthermore it is possible to gather a series of commands and control statements of the script
+	language in a separate file. This script file can then be executed as one unity.
+    The 'ui' layer also provides the graphical user interface with the help of the 'graph' and 'dev' layers.
+
+.   'graphics~(graph)' -
+	This module of `ug` realizes a small 2/3D color graphics model. Some features are scalar or vector plots 
+	with arbitrary viewpoint and cutplanes on the viewed domain, solution or grid.
+
+.   'numerical~procedures~(numerics)' - This layer provides ready to use linear algebra 
+    routines and iterative methods (such as multigrid) for standard applications.
+	The numerical procedures is also a toolset for the construction of new solvers on very high language level.
+	Since they are implemented as commands, it is possible to access them on the script or command line level.
+	This allows a quick and easy formulation of your appropriate solver and rapid prototyping of new ideas.
+
+.   'grid~management~(gm)' - The grid manager module performs all operations which manipulate the grid. It controls the creation 
+	and deletion of new elements during refine and provides a well defined interface to the layers above.
+	For more details see man page `gm`.
+
+.   'devices~(dev)' -
+	`devices` defines an abstract device interface with a fixed functionality.
+
+.   'low~tasks~(low)' -
+	This module handles low tasks as providing memory management, treating machine architecture and operation system 
+	dependencies. 
+  
+EXPERIMENTAL ENVIRONMENT:
+   An experimenting environment is a directory containing the code 
+   belonging to the problem class and application layer of an ug application.
+   This directory may be placed anywhere in the file system and does not have to
+   in a special position relative to the 'ug' directory. The name of the directory is
+   an abbreviation of the corresponding problemclass name (e.g. "'diff2d'"
+   for diffusion equation in 2 dimensions).
+   There usually are three subdirectories:~
+   
+.  pclib - The `p`roblem `c`lass `lib`rary ('pclib') realizes the 
+   problem class layer. In this
+   directory you can find functions for e.g. discretising, solving and estimating.
+   There exists a makefile (with the name 'Makefile') to build the
+   problem class library named "'lib'`problem_class_identifier`'LIBSUFFIX.a'", 
+   where
+   the LIBSUFFIX distinguishs between the variants relative to the dimension
+   of the domain and the locations of data (for further explanations see the
+   manual page `installation`). The documentation is contained in the 
+   subdirectories 'doc' and 'man'.
+   
+.  appl -  The `appl`ication layer is realized in this directory. Here is a
+   concrete experiment formulated covering the description of the 
+   domain shape and
+   the boundary conditions. Furthermore in this directory is the makefile
+   (with name 'Makefile') to build the application with the name 
+   "`problem_class_identifier`'a'", the application defaults file 'defaults' 
+   (see manual page `defaults`) and the application helpfile(s) '*.help' 
+   (see manual page `helpfile`). Include within the makefile the correct
+   configuration file from '$UGROOT/configs/' (see manual page 
+   `installation`) for building
+   different versions of your experimenting environment, but to generate
+   different versions of the ug library you must edit the file 
+   '$UGROOT/ug.conf' respectively copy one of the predefined ones from 
+   '$UGROOT/configs/'.
+   To keep this directory in order it is 
+   advisable to create subdirectories for scripts, pictures, grids etc. and
+   to register these subdirectories in the 'defaults' file. The 
+   documentation is contained in the subdirectories 'doc' and 'man'.
+   Be sure to start an application always from this application 
+   directory because
+   some functions need the current directory to be an application directory.
+   To make different experiments it is a favourable proceeding to maintain
+   them in different application directories.
+
+.  man - This directory contains subdirectories with the manual pages 
+   supplied by this experimenting environment. See manual page `installation`
+   for the correct installation of the manual pages. This pages you can not
+   view with the 'ugman' command because of bugs in the UNIX 'man' command; use
+   the 'xugman' command for this purpose.
+     
+   In the ug3 distribution are 4 experimenting environments included:~
+   
+.  cd3d - For solution of the scalar, stationary 
+   convection-diffusion 
+   equation in three dimensions with a Finite Volume scheme using 
+   tetrahedron elements.
+.  diff2d - For solution of the scalar 2 dimensional diffusion equation.
+.  fem - For solution of 2 dimensional Lame and Laplace vector equations 
+   with nonconforming P1-elements.
+.  ns2d - For solution of the 2 dimensional stationary incompressible
+   Navier Stokes equation with a Finite Volume scheme consistent 
+   stabilized according to Schneider and Raw.
+   
+UG3 PACKAGE:
+   The whole directory structure of the ug3 package is:~
+.vb
+ug31
+|----cd/
+|    |----appl/
+|    |    |----grids/
+|    |    |----gs/
+|    |    |----logfiles/
+|    |    |----protos/
+|    |    \----scripts/
+|    |----man/
+|    |    |----mana/
+|    |    \----manc/
+|    \----pclib/
+|----diff2d/
+|    |----appl/
+|    |----man/
+|    |    |----mana/
+|    |    \----manb/
+|    \----pclib/
+|----fem/
+|    |----appl/
+|    |    |----input/
+|    |    |----misc/
+|    |    \----results/
+|    |        |----aniso/
+|    |        \----std/
+|    |----man/
+|    |    |----mana/
+|    |    \----mand/
+|    \----pclib/
+|----ns2d/
+|    |----appl/
+|    |    |----Cylinder/
+|    |    |----DrivenCavity/
+|    |    |----backstep/
+|    |    |----check/
+|    |    |----corner/
+|    |    |----dc_nl/
+|    |    |----first_example/
+|    |    |----grids/
+|    |    |----misc/
+|    |    |----plotscripts/
+|    |    |----results/
+|    |    \----upwind_stencils/
+|    |----man/
+|    |    |----mana/
+|    |    \----mane/
+|    \----pclib/
+|----scalar/
+|    |----appl2d/
+|    |----appl3d/
+|    \----pclib/
+|----simple/
+\----ug/
+    |----arch/
+    |    |----AIX/
+    |    |----C90/
+    |    |----DEC/
+    |    |----HP/
+    |    |----NECSX4/
+    |    |----PARAGON/
+    |    |----PC/
+    |    |----POWERGC/
+    |    |----SGI/
+    |    |----SOLARIS/
+    |    |----SUN4GCC/
+    |    \----T3D/
+    |----bin/
+    |----configs/
+    |----dev/
+    |    |----mif/
+    |    |----ps/
+    |    |----rif/
+    |    |----sif/
+    |    \----xif/
+    |----doc/
+    |    |----texman/
+    |    \----ug3/
+    |        |----cd/
+    |        |    |----appl/
+    |        |    |----overview/
+    |        |    \----pclib/
+    |        |----diff2d/
+    |        |    |----appl/
+    |        |    |----overview/
+    |        |    \----pclib/
+    |        |----fem/
+    |        |    |----appl/
+    |        |    |----overview/
+    |        |    \----pclib/
+    |        |----ns2d/
+    |        |    |----appl/
+    |        |    |----overview/
+    |        |    \----pclib/
+    |        \----ug/
+    |            |----admin/
+    |            |----commands/
+    |            |----dev/
+    |            |    |----ps/
+    |            |    |----sif/
+    |            |    \----xif/
+    |            |----dom/
+    |            |    \----std/
+    |            |----gm/
+    |            |----graphics/
+    |            |    \----uggraph/
+    |            |----low/
+    |            |----numerics/
+    |            |----overview/
+    |            \----ui/
+    |----dom/
+    |    \----std/
+    |----gm/
+    |----graphics/
+    |    \----uggraph/
+    |----include/
+    |----lib/
+    |    \----ugdata/
+    |----low/
+    |----man/
+    |    |----man1/
+    |    |----man2/
+    |    |----man3/
+    |    |----man4/
+    |    |----man5/
+    |    |----man6/
+    |    |----man7/
+    |    |----man8/
+    |    \----man9/
+    |----numerics/
+    |----parallel/
+    |    |----ddd/
+    |    |    |----analyser/
+    |    |    |----basic/
+    |    |    |----ctrl/
+    |    |    |----f77/
+    |    |    |----ident/
+    |    |    |----if/
+    |    |    |----include/
+    |    |    |----mgr/
+    |    |    \----xfer/
+    |    |----dddif/
+    |    |----dddobj/
+    |    \----ppif/
+    |        |----DUMMY/
+    |        |----MPI/
+    |        |----NX/
+    |        |----NXLIB/
+    |        |----PARIX/
+    |        |----PVM/
+    |        \----SHMEMT3D/
+    \----ui/
+.ve
+   
+   SEE ALSO:
+   installation, ug, defaults, helpfile, diff2d, cd3d, ns2d, nc2d
+D*/
+
+/*D
+   defaults - file containig default settings for an executable application
+   
+   FILENAME:
+   "'defaults'", stored in an application directory
+   
+   DESCRIPTION:
+   The 'defaults' file contains some load time configurable parameters
+   for an executable produced with the ug libraries. It must reside in
+   the same directory where the application (the executable program)
+   is stored.
+   The man page `modules` contains an explanation of the directory
+   structure of the ug software. For further configuration facilities refer
+   to the manual pages `Installation` and `makefiles`.
+   
+   The entries in the defaults-file can be read from C-code with the
+   function 'GetDefaultValue'. You can append your own entries to the
+   defaults file and read them with this function. In the follwing the
+   entries recognized by ug are listed.
+
+   FILE FORMAT:
+   Each line contains one setting in the form "`variable` `value`". 
+   Lines with unrecognized variables do not trouble.
+   
+   VARIABLES RECOGNIZED BY UG:
+.  envmemory -  environment memory in bytes
+.  helpfiles -  list of help files ('*.help'). Give blank-separated 
+      list, specifications relatively to the current working directory or
+      absolute. Note that environment variables such as '$UGROOT' are not
+      interpreted; do not use them!
+.  gridpaths -  searchpaths to grid files ('*.dat'). Give blank separated 
+      pathname specifications relatively to the current working directory or
+      absolute, terminate each name with "/". Note that environment 
+      variables such as '$UGROOT' are not interpreted; do not use them!
+.  logfilesdir -  searchpath to logfiles ('*.log'). Give one
+      pathname specification relatively to the current working directory or
+      absolute, terminate the name with "/". Note that environment 
+      variables such as '$UGROOT' are not interpreted; do not use them!
+.  protocoldir -  searchpath to protocol files ('*.proto'). Give one
+      pathname specification relatively to the current working directory or
+      absolute, terminate the name with "/". Note that environment 
+      variables such as '$UGROOT' are not interpreted; do not use them!
+.  scriptpaths -  searchpaths to script files ('*.scr'). Give blank separated 
+      pathname specifications relatively to the current working directory or
+      absolute, terminate each name with "/". Note that environment 
+      variables such as '$UGROOT' are not interpreted; do not use them!
+.  arraypaths -  searchpaths to files in which arrays are stored ('*.array').
+	  Give blank separated
+	  pathname specifications relatively to the current working directory or
+	  absolute, terminate each name with "/". Note that environment
+	  variables such as '$UGROOT' are not interpreted; do not use them!
+
+   VARIABLES RECOGNIZED BY UG ONLY ON MACINTOSH:
+.  guimemory - memory for window management
+.  scrollback - line buffer for shell
+.  charsperline - max number of chars per line
+.  font - font name
+.  size - font size
+.  TermWinH - horizontal position of shell window
+.  TermWinV - vertical position of shell window
+.  TermWinDH - width of shell window
+.  TermWinDV - height of shell window
+
+   DEPENDENCIES:
+   The 'default' file is expected to be in the current working directory.
+   
+   EXAMPLE:
+.vb
+envmemory       32000
+helpfiles       ../../ug/doc/ug.help ../../ug/doc/ug2d.help ../pclib/ns.help
+gridpaths       ./grids/
+logfilesdir     ./example/
+protocoldir     ./example/
+scriptpaths     ./example/ ./ ./plotscripts/
+arraypaths      ./example
+
+guimemory       32000
+scrollback      500
+charsperline    256
+font            Monaco
+size            9
+TermWinH        400
+TermWinV        0
+TermWinDH       1000
+TermWinDV       1000
+.ve
+
+   BUGS:
+   Environment variables such as '$UGROOT' are not interpreted. Do not use
+   such variables in pathnames etc.
+   
+   SEE ALSO:
+   modules, GetDefaultValue
+D*/
+
+/*D
+   helpfile - format of UGs online help manuals
+   
+   DESCRIPTION:
+   UGs online help messages (see the command 'help')
+   are contained in standard ASCII files that you can extend to your needs.
+   A help file should have the extension '.help'.
+   UG can process several help-files at a time. A list of all help files
+   to be processed is defined in the defaults-file of the application (see
+   manpage 'defaults'). In the following the format of a help file is
+   explained and the names of the existing help files are listed.
+
+   FILE FORMAT:
+   '<helpfile> := { -[<helpitem> [ > {keyword }+ ]] <lines of ascii text> }*'
+   
+   The file consits of a sequence of entries. Each entry starts with a minus
+   sign "'-'" in the first column and ends before the next minus sign in 
+   the first column and, if that does not occur, at the end of the file.
+   
+   In each entry follows after the minus sign the '<helpitem>', that is the 
+   word to be typed in the 'help' command. After the '<helpitem>' can follow
+   separated by an "'>'" an optional list of keywords recognized by
+   the 'help $k' command version. The rest of the entry is displayed as the
+   answer to the 'help' command on the screen and can contain arbitrary
+   lines of text, except a minus sign in the first column that marks the
+   beginning of the next entry.
+   
+   Note: If an entry has no '<helpitem>' it acts as a comment in 
+   the helpfile and does not affect any retrieval.
+   
+   DEPENDENCIES:
+   All the helpfiles must be registered in the 'defaults'-file (see 
+   above or manual page `defaults`).
+   
+   RELATED FILES:
+.  $UGROOT/doc/ug.help general ug features 
+.  '$UGROOT/doc/ug2d.help' - special ug features in 2 dimensions
+.  '$UGROOT/doc/ug3d.help' - special ug features in 3 dimensions
+.  `experimenting_environment`'/appl/*.help' - application specific topics
+
+   SEE ALSO:
+   defaults, help, modules
+D*/

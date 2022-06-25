@@ -1,0 +1,5 @@
+if(ALBERTA_FOUND)
+  add_executable(test-alberta3d-refine test-alberta3d-refine.cc)
+  add_dune_alberta_flags(test-alberta3d-refine GRIDDIM 3)
+  dune_add_test(TARGET test-alberta3d-refine)
+endif(ALBERTA_FOUND)

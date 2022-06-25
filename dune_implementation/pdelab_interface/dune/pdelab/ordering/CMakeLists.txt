@@ -1,0 +1,19 @@
+install(FILES
+  chunkedblockordering.hh
+  decorator.hh
+  directleaflocalordering.hh
+  entityblockedlocalordering.hh
+  gridviewordering.hh
+  interleavedordering.hh
+  leafgridviewordering.hh
+  leaflocalordering.hh
+  leaforderingbase.hh
+  lexicographicordering.hh
+  localorderingbase.hh
+  orderingbase.hh
+  permutedordering.hh
+  singlecodimleafordering.hh
+  subordering.hh
+  transformations.hh
+  utility.hh
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dune/pdelab/ordering)

@@ -1,0 +1,37 @@
+/****************************************************************************/
+/*D																		
+   makefiles - maintain, update, and regenerate `ug` libraries 
+
+   SYNOPSIS:
+   makefiles 
+
+   DESCRIPTION:
+.  local~makefile - Each `ug` source code directory contains its own local 
+   makefile named Makefile.<dir>. 
+   At present the following subdirectories do exist in $UGROOT: low/, dev/ and 
+   the version dependent gm/, graph/ and ui/. For example
+   a makefile in directory ui/ would be named Makefile.ui. 
+
+.  version~dependencies -
+   Version dependency (i.e. dimension 2 or 3) 
+   is to be specified in the file $UGROOT/ug.conf. Herein a library 
+   name suffix $(LIBSUFFIX) is created, which will be added to a name of a
+   library by a local makefile. One example library suffix is
+   libug2, with the number 2 indicating the dimension.
+
+.  includes -
+   The basic file included by any local makefile in `ug` is $UGROOT/ug.conf.
+   $UGROOT/machines/XXX/mk.arch, takes care of all architecture dependent 
+   makefile entries like library pathnames for XLIB, compile an link flags etc.
+
+.  global~makefile -
+   The global makefile /ug/Makefile executes all local `ug` makefiles 
+   in hierarchical order and generates the version dependent 
+   `ug` library $UGROOT/lib/libug$(LIBSUFFIX).a. 
+ 
+.  executables -
+   In order to receive the executable demonstration programs execute the 
+	'ugproject' shell script and 'ugtest' for an example session.
+
+D*/																			
+/****************************************************************************/

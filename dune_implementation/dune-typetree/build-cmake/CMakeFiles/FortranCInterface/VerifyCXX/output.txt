@@ -1,0 +1,47 @@
+Change Dir: /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX
+
+Run Build Command:"/usr/bin/make" "VerifyFortranC"
+/usr/bin/cmake -S/usr/share/cmake-3.13/Modules/FortranCInterface/Verify -B/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/make -f CMakeFiles/Makefile2 VerifyFortranC
+make[1]: Entering directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+/usr/bin/cmake -S/usr/share/cmake-3.13/Modules/FortranCInterface/Verify -B/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX --check-build-system CMakeFiles/Makefile.cmake 0
+/usr/bin/cmake -E cmake_progress_start /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX/CMakeFiles 6
+/usr/bin/make -f CMakeFiles/Makefile2 CMakeFiles/VerifyFortranC.dir/all
+make[2]: Entering directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+/usr/bin/make -f CMakeFiles/VerifyFortran.dir/build.make CMakeFiles/VerifyFortran.dir/depend
+make[3]: Entering directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+cd /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /usr/share/cmake-3.13/Modules/FortranCInterface/Verify /usr/share/cmake-3.13/Modules/FortranCInterface/Verify /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX/CMakeFiles/VerifyFortran.dir/DependInfo.cmake
+Scanning dependencies of target VerifyFortran
+make[3]: Leaving directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+/usr/bin/make -f CMakeFiles/VerifyFortran.dir/build.make CMakeFiles/VerifyFortran.dir/build
+make[3]: Entering directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+[ 16%] Building Fortran object CMakeFiles/VerifyFortran.dir/VerifyFortran.f.o
+/usr/bin/gfortran -DVERIFY_CXX -I/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX  -O3 -DNDEBUG -O3   -c /usr/share/cmake-3.13/Modules/FortranCInterface/Verify/VerifyFortran.f -o CMakeFiles/VerifyFortran.dir/VerifyFortran.f.o
+[ 33%] Linking Fortran static library libVerifyFortran.a
+/usr/bin/cmake -P CMakeFiles/VerifyFortran.dir/cmake_clean_target.cmake
+/usr/bin/cmake -E cmake_link_script CMakeFiles/VerifyFortran.dir/link.txt --verbose=1
+/usr/bin/ar qc libVerifyFortran.a  CMakeFiles/VerifyFortran.dir/VerifyFortran.f.o
+/usr/bin/ranlib libVerifyFortran.a
+make[3]: Leaving directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+[ 33%] Built target VerifyFortran
+/usr/bin/make -f CMakeFiles/VerifyFortranC.dir/build.make CMakeFiles/VerifyFortranC.dir/depend
+make[3]: Entering directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+cd /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /usr/share/cmake-3.13/Modules/FortranCInterface/Verify /usr/share/cmake-3.13/Modules/FortranCInterface/Verify /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX/CMakeFiles/VerifyFortranC.dir/DependInfo.cmake
+Scanning dependencies of target VerifyFortranC
+make[3]: Leaving directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+/usr/bin/make -f CMakeFiles/VerifyFortranC.dir/build.make CMakeFiles/VerifyFortranC.dir/build
+make[3]: Entering directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+[ 50%] Building C object CMakeFiles/VerifyFortranC.dir/main.c.o
+/usr/bin/gcc -DVERIFY_CXX -I/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX  -O3 -DNDEBUG   -o CMakeFiles/VerifyFortranC.dir/main.c.o   -c /usr/share/cmake-3.13/Modules/FortranCInterface/Verify/main.c
+[ 66%] Building C object CMakeFiles/VerifyFortranC.dir/VerifyC.c.o
+/usr/bin/gcc -DVERIFY_CXX -I/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX  -O3 -DNDEBUG   -o CMakeFiles/VerifyFortranC.dir/VerifyC.c.o   -c /usr/share/cmake-3.13/Modules/FortranCInterface/Verify/VerifyC.c
+[ 83%] Building CXX object CMakeFiles/VerifyFortranC.dir/VerifyCXX.cxx.o
+/usr/bin/g++  -DVERIFY_CXX -I/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX  -std=c++17  -Wall -Wunused -Wmissing-include-dirs -Wcast-align -Wno-sign-compare -Wno-unused-parameter -Wno-deprecated-declarations -fno-strict-aliasing -fstrict-overflow -fno-finite-math-only -fopenmp -O3 -std=c++17 -L/opt/intel/compilers_and_libraries_2018.3.222/linux/mkl/lib/intel64 -lgmp -lmpfr -march=native -lmkl_rt -lpthread -lm -ldl -m64 -lstdc++fs -O3 -DNDEBUG   -o CMakeFiles/VerifyFortranC.dir/VerifyCXX.cxx.o -c /usr/share/cmake-3.13/Modules/FortranCInterface/Verify/VerifyCXX.cxx
+[100%] Linking CXX executable VerifyFortranC
+/usr/bin/cmake -E cmake_link_script CMakeFiles/VerifyFortranC.dir/link.txt --verbose=1
+/usr/bin/g++  -std=c++17  -Wall -Wunused -Wmissing-include-dirs -Wcast-align -Wno-sign-compare -Wno-unused-parameter -Wno-deprecated-declarations -fno-strict-aliasing -fstrict-overflow -fno-finite-math-only -fopenmp -O3 -std=c++17 -L/opt/intel/compilers_and_libraries_2018.3.222/linux/mkl/lib/intel64 -lgmp -lmpfr -march=native -lmkl_rt -lpthread -lm -ldl -m64 -lstdc++fs -O3 -DNDEBUG   CMakeFiles/VerifyFortranC.dir/main.c.o CMakeFiles/VerifyFortranC.dir/VerifyC.c.o CMakeFiles/VerifyFortranC.dir/VerifyCXX.cxx.o  -o VerifyFortranC libVerifyFortran.a -lgfortran -lquadmath 
+make[3]: Leaving directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+[100%] Built target VerifyFortranC
+make[2]: Leaving directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'
+/usr/bin/cmake -E cmake_progress_start /home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX/CMakeFiles 0
+make[1]: Leaving directory '/home/paddy/pkg/dune_2d/dune-typetree/build-cmake/CMakeFiles/FortranCInterface/VerifyCXX'

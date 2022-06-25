@@ -1,0 +1,7 @@
+<?xml version="1.0"?> 
+<VTKFile type="Collection" version="0.1" byte_order="LittleEndian"> 
+<Collection> 
+<DataSet timestep="-0.1" group="" part="0" name="" file="/media/paddy/local1/results_local_1/results_fracture_opening/paper_06_06_fracture_opening_3_7_constant_pressure_1.5MPa-00000.vtu"/> 
+<DataSet timestep="0" group="" part="0" name="" file="/media/paddy/local1/results_local_1/results_fracture_opening/paper_06_06_fracture_opening_3_7_constant_pressure_1.5MPa-00001.vtu"/> 
+</Collection> 
+</VTKFile> 

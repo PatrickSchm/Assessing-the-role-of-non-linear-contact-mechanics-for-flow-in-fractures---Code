@@ -1,0 +1,10 @@
+#dune module information file#
+##############################
+
+#Name of the module
+Module: myimplementation
+Version: 2.5-dev
+Maintainer: patrick.schmidt@uq.edu.au
+#depending on
+Depends:  dune-common (>= 2.5) dune-geometry (>=2.5) dune-grid (>= 2.5) dune-istl (>= 2.4) dune-pdelab (>= 2.4) dune-uggrid (>= 2.4)
+Whitespace-Hook: Yes

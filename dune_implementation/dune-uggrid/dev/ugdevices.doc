@@ -1,0 +1,106 @@
+/****************************************************************************/
+/*D
+    devices - the devices module defines an interface to machine dependent window
+                and event handling
+    
+    PURPOSE:
+    The devices module defines an interface for graphics ouput on windows and for
+    the event handling. Interfaces with window and event handling are defined for
+    XWindows ('xif') and Macintosh ('mif') computers up to now but should be easily extendable to
+    other platforms like Microsoft Windows or others.
+    
+    The possibility of a very simple text interface is also offered ('sif'). With this
+    interface ug should run on hardly any machine and also in batch mode.
+    
+    The machine interface is split into two parts':'
+
+.n      a) output to the shell
+.n      b) event handling (including input from shell), window management and graphics
+    
+    The first is defined via the interface functions
+
+.n      UserWrite
+.n      UserWriteF
+.n      PrintErrorMessage
+.n      WriteString
+
+    while the input from shell is connected with the event handling (--> 'EVENT'). (machines
+    without event handling can nevertheless define a standard interface which only returns events
+    of type 'TERM_STRING_EVENT'.) For details see also 'ProcessEvent'.
+    
+    For the event handling c.f. 'ProcessEvent' and the description of the 'EVENT' data structure.
+    
+    The graphics interface is defined by a data structure called --> 'OUTPUTDEVICE' and
+    can be either the monitor screen using the machines window management
+    or a file to which graphics commands are written. This struct requires basic plotting
+    functions, color palette handling and functions for window handling.
+    
+    STRUCTURE:
+    The devices module consists of a file 'ugdevices.c' providing some interface functions
+    for':'
+    
+.n      - enroling output devices at initialization time
+.n      - output on the shell window
+.n      - printing of error messages
+.n      - log file mechanism (shell output can be protocoled)
+.n      - defining a mutelevel which controls how verbose output of functions is
+.n      - opening the shell window at initialization time
+    
+    Then there are some subdirectories that contain different output devices for
+    graphics output':'
+    
+.n      xif - here is the source code for the XWindows interface
+.n      mif - here is the source code for the Macintosh interface
+    
+    SEE ALSO:
+    EVENT, OUTPUTDEVICE, ProcessEvent
+D*/
+/****************************************************************************/
+
+/****************************************************************************/
+/*D
+    OUTPUTDEVICE - data structure to define an interface to output devices
+    
+    STRUCT COMPONENTS:
+    We only explain the function pointers together with their arguments and types in correct order.
+    
+.   Move            - move the current cursor position: 'SHORT_POINT position'
+.   Draw            - draw a line with the current color and the current line width
+                        from the current cursor position to: 'SHORT_POINT endposition'.
+.   Polyline        - draw a polygonal line (not closed) connecting 'SHORT_POINT points[], INT nPoints' in total
+.   InversePolyline - draw an inverse polygonal line (not closed) connecting 'SHORT_POINT points[], INT nPoints' in total
+.   Polygon         - draw a filled polygon (closed) connecting 'SHORT_POINT points[], INT nPoints' in total
+.   InversePolygon  - draw an inverse filled polygon (closed) connecting 'SHORT_POINT points[], INT nPoints' in total
+.   ErasePolygon    - erase filled polygon (closed) connecting 'SHORT_POINT points[], INT nPoints' in total
+.   Polymark        - plot 'short nMarkers' at 'SHORT_POINT points[]'
+.   Text            - write text at 'SHORT_POINT position' with 'INT mode' TEXT_REGULAR or TEXT_INVERSE
+.   CenteredText    - write centered text at 'SHORT_POINT position' with 'INT mode' TEXT_REGULAR or TEXT_INVERSE
+.   ClearViewPort   - clear the whole view port of the window
+.   SetLineWidth    - set current line width to 'short width'
+.   SetTextSize     - set current text size to 'short size'
+.   SetMarker       - set current marker id to 'short id'
+.   SetMarkerSize   - set current marker size to 'short size'
+.   SetColor        - set current color to 'short color'
+.   SetPaletteEntry - set palette entry 'long entry' to ('short red', 'short green', 'short blue')
+.   SetNewPalette   - init palette entries in the range 'long start' to 'long end' with colors
+                        ('short red[]', 'short green[]', 'short blue[]')
+.   GetPaletteEntry - return current rgb values of entry 'long entry' in 'short *red', 'short *green', 'short *blue'
+.   Flush           - flush the graphics buffer (iff)
+
+.   OpenOutput      - open a window with 'char title[]', lower left corner at ('INT x, INT y') with
+                        'INT width' and 'INT heigth'. The global coordinates (in the screen) and the local
+                        coordinates (in the window) of the view port (lower left and upper right corner)
+                        are stored in 'INT Global_LL[2]' etc. The return values is the window id.
+.   CloseOutput     - close the window with 'WINDOWID id'
+.   ActivateOutput  - activate the window with 'WINDOWID id'
+.   UpdateOutput    - update the window with 'WINDOWID id', write string 'char *s' into the info
+                        box and display 'INT tool' as current tool
+    
+    The remaining struct components are suppose to be self explanatory.
+    
+    SEE ALSO:
+    devices 
+
+D*/
+/****************************************************************************/
+

@@ -1,0 +1,321 @@
+/****************************************************************************/
+/*D
+   
+num_proc - numerical procedures
+
+DESCRIPTION:
+
+All num procs start with the base class, containing the Init, Display amd
+Execute functions.
+
+struct np_base {
+
+    // data 
+    ENVVAR v;							// is an environment variable		
+    MULTIGRID *mg;						// associated multigrid				
+    INT status;							// has a status, NO type and size...
+
+    // functions 
+    INT	(*Init) (struct np_base *, INT, char **); // initializing routine   
+    INT (*Display) (struct np_base *);                   // Display routine 
+    INT (*Execute) (struct np_base *, INT, char **);     // Execute routine 
+};
+typedef struct np_base NP_BASE;
+
+The derived classes are defined in the headers
+iter.h, ls.h, nls.h, assemble.h, error.h, transfer.h, e. g.
+
+typedef struct {
+	INT error_code;                     // error code                       
+	INT converged;                      // error code                       
+	VEC_SCALAR first_defect;            // first defect                     
+	VEC_SCALAR last_defect;             // last defect                      
+	INT number_of_linear_iterations;    // number of iterations             
+} LRESULT;
+
+struct np_linear_solver {
+	NP_BASE base;                        // inherits base class             
+
+	// data (optinal, necessary for calling the generic execute routine)    
+    VECDATA_DESC *x;                     // solution                        
+    VECDATA_DESC *b;                     // defect                          
+    MATDATA_DESC *A;                     // matrix                          
+	VEC_SCALAR reduction;                // reduction factor                
+	VEC_SCALAR abslimit;                 // absolute limit for the defect   
+	
+	// functions 
+	INT (*PreProcess)  
+	     (struct np_linear_solver *,     // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *,                         // baselevel used by the solver     
+		  INT *);                        // result                           
+    INT (*Defect)                        // b := b - Ax                     
+	     (struct np_linear_solver *,     // pointer to (derived) object      
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+    INT (*Residuum)                      // computes norm of the defect     
+	     (struct np_linear_solver *,     // pointer to (derived) object      
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  LRESULT *);                    // result structure                 
+    INT (*Solver)                        // b := b - Ax                     
+	     (struct np_linear_solver *,     // pointer to (derived) object      
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  VEC_SCALAR,                    // reduction factor                
+		  VEC_SCALAR,                    // absolute limit for the defect   
+		  LRESULT *);                    // result structure                 
+	INT (*PostProcess) 
+	     (struct np_linear_solver *,     // pointer to (derived) object      
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+};
+typedef struct np_linear_solver NP_LINEAR_SOLVER;
+
+struct np_assemble {
+
+	NP_BASE base;                        // inherits base class             
+
+	// data (optinal, necessary for calling the generic execute routine)    
+    VECDATA_DESC *x;                     // solution                        
+    VECDATA_DESC *c;                     // correction                      
+    VECDATA_DESC *b;                     // defect                          
+    MATDATA_DESC *A;                     // matrix                          
+	
+	// functions 
+	INT (*PreProcess)  
+	     (struct np_assemble *,          // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+    INT (*Assemble)        
+	     (struct np_assemble *,          // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+    INT (*AssembleSolution)        
+	     (struct np_assemble *,          // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  INT *);                        // result                           
+    INT (*AssembleDefect)        
+	     (struct np_assemble *,          // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+    INT (*AssembleMatrix)        
+	     (struct np_assemble *,          // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,			     // current solution	(initial)	
+		  VECDATA_DESC *,			     // defect for current solution     
+		  VECDATA_DESC *,			     // correction to be computed  		
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+	INT (*PostProcess) 
+	     (struct np_assemble *,          // pointer to (derived) object     
+		  INT,                           // level                            
+		  VECDATA_DESC *,                // solution vector                  
+		  VECDATA_DESC *,                // defect vector                    
+		  MATDATA_DESC *,                // matrix                           
+		  INT *);                        // result                           
+};
+typedef struct np_assemble NP_ASSEMBLE;
+
+
+Here, the interface is defined which can be used by the nonlinear solver,
+i. e. the nonlinear solver can use only the funtions of the interface
+in the derived class.
+
+For the realisation, the user defines a final class, e. g.
+
+typedef struct
+{
+	NP_LINEAR_SOLVER ls;
+
+	NP_ITER *Iter;
+	INT maxiter;
+	INT baselevel;
+	INT display;
+	VECDATA_DESC *c;
+
+} NP_LS;
+
+This struct is not public and can be used in ls.c only.
+For the initialization of a linear solver an iteration is necessary
+which can be get by
+
+	npls->Iter = (NP_ITER *)GetNumProcByName(mg,name,ITER_CLASS_NAME);
+
+Here, the class name checks if the num proc 'name' is of the correct
+class. 
+
+Every final class must be constructed by a constructor.
+
+typedef INT (*ConstructorProcPtr)   (NP_BASE *);
+
+typedef struct
+{
+	ENVVAR v;						// class name							
+	INT size;                       // size of the object                   
+	ConstructorProcPtr Construct;	// construct one object of this class
+} NP_CONSTRUCTOR;
+
+For example
+
+static INT LSConstruct (NP_BASE *theNP)
+{
+    NP_LINEAR_SOLVER *np;
+	
+	theNP->Init = LinearSolverInit;
+	theNP->Display = LinearSolverDisplay;
+	theNP->Execute = NPLinearSolverExecute;
+
+	np = (NP_LINEAR_SOLVER *) theNP;
+	np->PreProcess = LinearSolverPreProcess;
+	np->Defect = LinearDefect;
+	np->Residuum = LinearResiduum;
+	np->Solver = LinearSolver;
+	np->PostProcess = LinearSolverPostProcess;
+
+    return(0);
+}
+
+The final class must be constructed by
+
+	CreateClass (LINEAR_SOLVER_CLASS_NAME ".ls",sizeof(NP_LS),LSConstruct);
+
+Then, the numproc has the name 'linear_solver.ls', starting with the
+name of the derived class and ending with the final class name.
+
+D*/
+/****************************************************************************/
+
+/****************************************************************************/
+/*D
+   
+udm - user data manager
+
+DESCRIPTION:
+
+The user data manager allocates VECDATA_DESCs and MATDATA_DESCs dynamicly.
+It uses vector and matrix templates provided by the format.
+
+VECDATA_DESCs and MATDATA_DESCs used in the script are 'locked'. 
+They can be constructed by -> 'createvector' and -> 'creatematrix'
+directly or by -> 'ReadArgvVecDesc' and -> 'ReadArgvVecDesc' as 
+parameters of commands and num procs. 
+In both cases a vector or matrix is constructed with the template
+of the same name (or with the first template, if there is no template
+of this name).
+
+VECDATA_DESCs and MATDATA_DESCs not used in the script but required in
+num procs can be alloccated dynamicly. We explain the concept for a 
+vector v.
+
+In 'npinit' a temporary vector can be specified for debugging purpose.
+Thus, the init routine tries to get the vector by calling 'ReadArgvVecDesc'.
+If the vector is not specified (the general case), 'ReadArgvVecDesc' returns
+NULL.
+
+In 'npexecute', the vector can be allocated by AllocVDFromVD(...,x,v).
+
+   if v == NULL, it returns a free VECDATA_DESC, or if there is no
+   free vector, it creates a new vector. Then, the vector is allocated.
+
+   if v != NULL, it checks if the vector is free and allocates it.
+   Otherwise, it acts like above.
+
+When the vector is not used any more, it is deallocate with FreeVD.
+
+Usually, v will be the same vector for every call of the num proc,
+but in between other num procs can allocate and deallocate the same
+vector.
+
+If v is locked (i. e. v is specified in the script), Alloc and Free does 
+nothing.
+
+EXAMPLES:
+
+.vb
+newformat P1_conform $V n1: 4 $M n1xn1: 2;
+
+createvector sol;
+clear rhs;
+.ve
+
+A format 'P1_conform' is created with one vector and one matrix template.
+'createvector sol' creates a VECDATA_DESC 'sol' with the unique vector 
+template.
+'clear rhs' reads 'rhs with 'ReadArgvVecDesc' and creates a VECDATA_DESC 'rhs'
+with the unique vector template.
+
+.vb
+newformat P1P2 $V n1 k1: sol rhs $V n1: 4 $M n1xn1: 2;
+
+createvector sol;
+clear rhs;
+.ve
+
+A format 'P1_conform' is created with three vector and one matrix template.
+'createvector sol' creates a VECDATA_DESC 'sol' with the vector 
+template 'sol'.
+'clear rhs' reads 'rhs with 'ReadArgvVecDesc' and creates a VECDATA_DESC 'rhs'
+with the vector template 'rhs'.
+
+.vb
+npcreate smooth $c gs;
+npinit smooth;
+
+npcreate basesolver $c ls;
+npinit basesolver $red 0.001 $m 1 $I smooth;
+
+npcreate transfer $c transfer;
+npinit transfer;
+
+npcreate lmgc $c lmgc;
+npinit lmgc $S smooth smooth basesolver $T transfer $n1 2 $n2 2;
+
+npcreate mgs $c ls;
+npinit mgs $A MAT $x sol $b rhs $m 8 $red 0.00001 $I lmgc $d full;
+.ve
+
+MAT, sol and rhs will be created by 'npinit mgs' and locked.
+'npexecute mgs' requires two additional vectors vec00 and vec01. 
+
+.vb
+mgs --> | Alloc vec00
+        | --> lmgc | Alloc vec01
+        |          | --> transfer 
+        |          | --> smooth
+        |          | Free vec01
+        |          | --> basesolver | Alloc vec01
+        |                           | --> smooth
+        |                           | Free vec01
+        | Free vec00
+.ve                                    
+
+Then, 'npdisplay' shows which vectors are used by the num procs.
+vec00 and vec01 are free after the termination of 'mgs', so
+that they can be used by other num procs as well.
+
+D*/
+/****************************************************************************/

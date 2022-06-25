@@ -1,0 +1,2 @@
+add_subdirectory(MPI)
+install(FILES ppif.h DESTINATION ${CMAKE_INSTALL_PKGINCLUDEDIR})

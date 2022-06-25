@@ -1,0 +1,29 @@
+DGF
+Interval
+ 0  0         % first corner 
+ 1  1         % second corner
+ 4  8         % 4 cells in x and 8 in y direction
+#
+Simplex
+#
+
+GridParameter
+% set overlap to 1
+overlap 1
+% set closure to none for UGGrid 
+closure none
+% generate copies in UGGrid
+copies yes
+% set heap size for UGGrid
+heapsize 1000
+#
+
+PERIODICFACETRANSFORMATION
+% set periodic boundaries in x direction
+% 1 0, 0 1 + 1 0
+#
+
+BOUNDARYDOMAIN
+default 1     % default boundary id
+#BOUNDARYDOMAIN
+# examplegrid5.dgf

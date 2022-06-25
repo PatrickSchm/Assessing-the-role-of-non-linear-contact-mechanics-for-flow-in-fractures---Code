@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libdunepdelab.a  CMakeFiles/dunepdelab.dir/dune/pdelab/common/clock.cc.o CMakeFiles/dunepdelab.dir/dune/pdelab/common/hostname.cc.o CMakeFiles/dunepdelab.dir/dune/pdelab/common/logtag.cc.o
+/usr/bin/ranlib lib/libdunepdelab.a

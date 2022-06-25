@@ -1,0 +1,5 @@
+Module: dune-uggrid
+Version: 2.7-git
+Depends: dune-common
+Maintainer: dune-devel@lists.dune-project.org
+Whitespace-Hook: Yes

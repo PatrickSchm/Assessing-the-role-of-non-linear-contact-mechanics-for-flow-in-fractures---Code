@@ -1,0 +1,6 @@
+#add_subdirectory(linearelastic)
+#add_subdirectory(poroelastic)
+#add_subdirectory(squeezing)
+#add_subdirectory(domain)
+#add_subdirectory(darcy_interface)
+add_subdirectory(hd_interface_2d)

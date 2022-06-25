@@ -1,0 +1,22 @@
+DGF
+Interval
+ 0    0          % first corner 
+ 0.8  6.1         % second corner
+ 10   127        % 4 cells in x and 8 in y direction
+#
+% Simplex
+#
+
+GridParameter
+% set overlap to 1
+overlap 1
+% set periodic boundaries in x direction
+periodic 0  
+% set closure to none for UGGrid 
+closure none
+# 
+
+BOUNDARYDOMAIN
+default 1     % default boundary id
+#BOUNDARYDOMAIN
+# examplegrid5.dgf

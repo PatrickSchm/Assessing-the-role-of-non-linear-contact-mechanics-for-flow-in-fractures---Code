@@ -1,0 +1,114 @@
+// -*- tab-width: 4; indent-tabs-mode: nil -*-
+/* This file determines the order how things appear in the doxygen
+   documentation within the Grid group. It works like this:
+
+   @defgroup commands appear only in this file here which is
+   parsed before the other files (because it is mentioned first 
+   in the Doxyfile).
+
+   Only @addtogroup is used in the code documentation.
+*/
+
+  /**
+	 @defgroup GridInterface The Grid Interface
+	 @ingroup Grid
+        @brief Interfaces needed when working with a \ref Grid "Dune::Grid"
+  */
+  /** @defgroup GIRelatedTypes Related types and enumerations
+      @ingroup GridInterface */
+  /** @defgroup GIGrid Grid Abstract Base Class
+      @ingroup GridInterface */
+  /** @defgroup GIGridView GridView
+      @ingroup GridInterface */
+  /** @defgroup GIEntity Entity 
+      @ingroup GridInterface */
+  /** @defgroup GIGeometry Geometry
+      @ingroup GridInterface */
+  /** @defgroup GIEntityPointer EntityIterators
+      @ingroup GridInterface */
+  /** @defgroup GIIntersectionIterator Intersections
+      @ingroup GridInterface */
+  /** @defgroup GIIteration Iterating over grid entities and intersections
+      @ingroup GridInterface */
+  /** @defgroup IndexIdSets IndexSet and IdSet
+	  @ingroup GridInterface */
+  /** @defgroup GICollectiveCommunication CollectiveCommunication
+      @ingroup GridInterface */
+  /** @defgroup GIMiscellaneous Miscellaneous
+	  @ingroup GridInterface */
+  /** @defgroup GICapabilities Capabilities
+	  @ingroup GridInterface */
+
+  /**
+     @defgroup Mapper Mappers
+     @ingroup Grid
+   */
+
+  /**
+	 @defgroup GridImplementations Grid Implementations
+	 @ingroup Grid
+        @brief A list of the different Implementations of the Dune Grid Interface
+  */
+
+  /** \defgroup GeoGrid GeometryGrid
+    \ingroup GridImplementations */
+
+  /** \defgroup IdentityGrid IdentityGrid
+    \ingroup GridImplementations */
+
+	/** @defgroup OneDGrid OneDGrid 
+		@ingroup GridImplementations */
+
+	/** @defgroup UGGrid UGGrid 
+		@ingroup GridImplementations */
+
+	/** @defgroup YaspGrid YaspGrid
+		@ingroup GridImplementations */
+
+	/** @defgroup AlbertaGrid AlbertaGrid
+		@ingroup GridImplementations */
+
+  /** @defgroup IO I/O
+      @ingroup Grid
+  */
+
+        /** @defgroup GridFactory GridFactory
+	        @ingroup IO
+                @brief An interface for the creation of macro grids, for use by grid file readers etc.
+          */
+
+        /** @defgroup DuneGridFormatParser The Dune Grid Format (DGF)
+            @ingroup IO */
+
+        /** @defgroup DGFGridParameter DGF grid parameter for different grids 
+            @ingroup DuneGridFormatParser */
+
+        /** @defgroup AmiraMesh AmiraMesh
+            @ingroup IO */
+
+        /** @defgroup VTK Visualization ToolKit (VTK)
+            @ingroup IO */
+        
+        /** @defgroup Gnuplot Gnuplot
+            @ingroup IO */
+
+        /** @defgroup Gmsh Gmsh grid format
+            @ingroup IO */
+
+        /** @defgroup StarCD StarCD
+            @ingroup IO */
+
+  /*
+     @defgroup GridPart Grid Parts
+     @ingroup Grid
+  */
+  
+  /**
+	 @defgroup GridDevel Grid Developer API
+	 @ingroup Grid
+        @brief Interfaces needed to implement a new \ref Grid "Dune::Grid"
+
+        For help implementing the geometries of your grid, have a look at \ref
+        GenericGeometry from \ref dune-geometry.
+  */
+

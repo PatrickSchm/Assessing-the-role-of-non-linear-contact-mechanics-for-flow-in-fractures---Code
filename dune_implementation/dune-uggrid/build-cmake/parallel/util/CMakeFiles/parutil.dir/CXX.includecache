@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../parallel/ppif/ppif.h
+
+/home/paddy/pkg/dune_2d/dune-uggrid/parallel/util/xbc.cc
+config.h
+-
+cstddef
+-
+stdarg.h
+-
+cstring
+-
+ppif.h
+/home/paddy/pkg/dune_2d/dune-uggrid/parallel/util/ppif.h
+
+FC.h
+
+config.h
+FC.h
+FC.h
+

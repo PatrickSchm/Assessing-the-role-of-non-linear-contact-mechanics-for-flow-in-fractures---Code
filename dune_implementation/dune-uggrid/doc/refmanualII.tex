@@ -1,0 +1,119 @@
+\documentstyle[epsf,twoside,titlepage]{ugart}
+
+% Voreinstellungen
+\input{const.tex}
+\input{refman.sty}
+\pagestyle{myheadings}
+\sloppy
+\makeindex
+
+% Titelseite
+
+
+\begin{document}
+\newcommand{\sectitle}{\mbox{}}
+\setcounter{page}{0}
+
+\title{UG Reference Manual, Part II}
+\author{The UG Group}
+\maketitle
+
+
+
+\section*{Introduction}
+
+The UG Manual consists of three parts:
+\\[5mm]  
+The {\em Programming Manual} gives an overview on the program, it
+explains the submodules and all data structures and it contains
+all commands which are needed for running an application.
+\\[5mm]  
+The {\em Reference Manual} contains a list of all 
+functions in the ug library which can be called in the Problem Classes.
+\\[5mm]
+The {\em Application and Problem Class Documentation} gives examples
+of applications of the ug library.
+\\[5mm]
+The manuals are created with the tool {\tt doctext} and the content is 
+identical with the man pages. All man pages can be displayed on screen 
+with the commands {\tt xugman} resp. {\tt ugman}.
+\\[5mm]
+We hope that this documentation helps the reader to use UG 
+and to implement own applications.
+\\[1cm]
+The documentation team
+\\[1cm]
+Peter Bastian\\
+Gabi Beddies\\
+Rolf Dornberger\\
+Dirk Feuchter\\
+Reinhard Haag\\
+Ingo Heppner\\
+Wolfgang Hoffmann\\
+Klaus Johannsen\\
+Stefan Lang\\
+George Mazurkevich\\
+Nikolas Neu\ss\\
+Henrik Rentz-Reichert\\
+Oliver Urbitsch\\
+Christian Wieners\\
+Christian Wrobel
+
+\newpage
+{
+\small
+\tableofcontents
+}
+\clearpage
+
+% include the different sections
+\thispagestyle{plain}
+\section{manpages for module ''ug''}
+\renewcommand{\sectitle}{ug}
+\input{ug3/ug/refman}
+
+\thispagestyle{plain}
+\section{manpages for module ''ug/dev''}
+\renewcommand{\sectitle}{ug/dev}
+\input{ug3/ug/dev/refman}
+
+% shall not be documanted!
+%\thispagestyle{plain}
+%\section{manpages for module ''ug/dev/mif''}
+%\renewcommand{\sectitle}{ug/dev/mif}
+%\input{ug3/ug/dev/mif/refman}
+
+% shall not be documanted!
+%\thispagestyle{plain}
+%\section{manpages for module ''ug/dev/xif''}
+%\renewcommand{\sectitle}{ug/dev/xif}
+%\input{ug3/ug/dev/xif/refman}
+
+% no manpages
+%\thispagestyle{plain}
+%\section{manpages for module ''ug/dom''}
+%\renewcommand{\sectitle}{ug/dom}
+%\input{ug3/ug/dom/refman}
+
+\thispagestyle{plain}
+\section{manpages for module ''ug/dom/std''}
+\renewcommand{\sectitle}{ug/dom/std}
+\input{ug3/ug/dom/std/refman}
+
+\thispagestyle{plain}
+\section{manpages for module ''ug/gm''}
+\renewcommand{\sectitle}{ug/gm}
+\input{ug3/ug/gm/refman}
+
+\thispagestyle{plain}
+\section{manpages for module ''ug/graphics''}
+\renewcommand{\sectitle}{ug/graphics/uggraph}
+\input{ug3/ug/graphics/refman}
+
+\thispagestyle{plain}
+\section{manpages for module ''ug/low''}
+\renewcommand{\sectitle}{ug/low}
+\input{ug3/ug/low/refman}
+
+\end{document}
+

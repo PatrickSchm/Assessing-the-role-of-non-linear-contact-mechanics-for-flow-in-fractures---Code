@@ -1,0 +1,966 @@
+---------------------------
+
+CHANGES 1.8.25 -> 1.9
+---------------------------
+990211 kb
+added some memory checks and initialization routines.
+	- due to C.Wieners, some neuralgic parts of the
+	  code have been equipped with assert and memset
+	  calls in order to find possible serious application bugs
+	  easier in future.
+	- GetIFMem in if/ifuse.c.
+	- NewCoupling in mgr/cplmgr.c.
+---------------------------
+
+CHANGES 1.8.24 -> 1.8.25
+---------------------------
+990202 kb
+fixed bug which lead to PrioBegin/End error.
+	- the std-interface was not sorted correctly, because of
+	  invalid initialization of the CPLDIR-flags. This is fixed now.
+	- added some debug info in prio/pcmds.c
+---------------------------
+
+CHANGES 1.8.23 -> 1.8.24
+---------------------------
+980922 kb
+new option OPT_CPLMGR_USE_FREELIST.
+	- if this option is set to OPT_ON (default), the Coupling-Manager
+	  will allocate all COUPLING-structs in segmented lists with
+	  freelist management. For applications which use a simple malloc-
+	  style MemMgr interface, this will lead to more performance due
+	  to allocation of larger blocks and avoidance of many malloc/free
+	  operations. If the application itself implements a powerful
+	  memory management, this option could be turned to OPT_OFF.
+	  Then, each COUPLING struct is allocated/freed separately.
+---------------------------
+
+CHANGES 1.8.22 -> 1.8.23
+---------------------------
+980909 kb
+new DDD module 'Prio'.
+	- when using the Xfer-module just for changing the priorities
+	  of distributed objects, a lot of communication and computation
+	  overhead is generated, which is not necessary due to the
+	  lack of information propagation.
+	- the new Prio-environment provides two functions
+	  DDD_PrioBegin()/DDD_PrioEnd() for starting and ending a
+	  Prio-environment and a third function DDD_PrioChange()
+	  for issueing PrioChange-commands.
+	- this environment is able to communicate the changed priorities
+	  directly via communication using the standard interface.
+980720 kb
+Renumbered error codes in TypeMgr.
+	- this update serves as a preparation for a more solid error
+	  code numbering scheme with well-documented errors. This is
+	  the beginning.
+980707 kb
+DDD_XferEnd will try to recover.
+	- using the exception-capability of DDD_Notify, XferEnd will
+	  try to give up if it cannot allocate necessary resources
+	  (most of all, memory allocation). If a certain point
+	  of-no-return hasn't been reached in the course of the
+	  Xfer-operation, the distributed algorithm is able to
+	  shutdown safely without changing the DDD data structures.
+	  This might be used to recover from a low-memory situation
+	  by speculative XferEnds.
+980707 kb
+DDD_Notify has exception-capability.
+	- during the global communication in Notify, each processor
+	  may initiate a global exception message instead of taking
+	  part in a normal Notify-operation. The DDD_Notify() call
+	  won't return the number of receive messages for the local
+	  processors, but will return the largest exception number
+	  instead (with changed sign).
+980706 kb
+memory-intensive DDD functions can return success codes now.
+	- NOTE: the API has changed! DDD_XferEnd, DDD_JoinEnd and
+	  DDD_IdentifyEnd are returning a DDD_RET code now.
+	- in future versions DDD will become more robust in terms
+	  of memory shortage. Up to now, the functions mentioned
+	  above are throwing corefiles on memory shortage, this
+	  will be replaced by returning DDD_RET_ERROR_NOMEM.
+---------------------------
+
+CHANGES 1.8.21 -> 1.8.22
+---------------------------
+980702 kb
+reduced overall memory requirements.
+	- DDD_PROC is now an 'unsigned short'.
+	- Xfer-Unpack needs less memory due to casting of PRIO and
+	  ATTR values to char in NewCpl-structures.
+---------------------------
+
+CHANGES 1.8.20 -> 1.8.21
+---------------------------
+980527 kb
+bugfix in Ident memory handling.
+---------------------------
+
+CHANGES 1.8.19 -> 1.8.20
+---------------------------
+980525 kb
+changed memory handling in Ident.
+	- similar to changes in Xfer module for ddd-1.8.18, the
+	  Identify-module memory management has been revised.
+	  Memory allocation and freeing may now be done more
+	  specifically.
+---------------------------
+
+CHANGES 1.8.18 -> 1.8.19
+---------------------------
+980519 kb
+bugfix in memory handling.
+	- the send-message buffers during ConsCheck where allocated
+	  from a wrong source.
+980518 kb
+reduced size of Xfer-messages.
+	- during Xfer, message buffers are allocated for send and
+	  receive messages. The size of these message buffers (and
+	  the size of the transferred messages) depend mostly on the
+	  number of objects which must be transferred. Each message
+	  contains an ObjectTable, which serves as a directory for
+	  the objects contained in that messages. This object table
+	  has been reduced by about 12%.
+---------------------------
+
+CHANGES 1.8.17 -> 1.8.18
+---------------------------
+980514 kb
+complete redesign of memory handling.
+	- memory handling, esp. during DDD_XferEnd() is done more specifically,
+	  now. Each call to AllocTMEM and FreeTMEM is given an additional 
+	  parameter 'kind', which tells the memory manager what kind of
+	  memory is allocated. A simple memory manager can ignore this and
+	  call malloc() and free().
+	- Also module Join has been changed accordingly.
+	- NOTE: the memory manager (MemMgr) interface has changed, some calls
+	  have more parameters!
+---------------------------
+
+CHANGES 1.8.16 -> 1.8.17
+---------------------------
+980505 kb
+bugfix in DDD_XferObjIsResent().
+---------------------------
+
+CHANGES 1.8.15 -> 1.8.16
+---------------------------
+980427 kb
+added new error control feature for Ident-module.
+	- when using MPI on workstations, messages with different lengths
+	  can be sent and received. This results in quiet error situations,
+	  when the number of Identify-calls on pairs of processors is not
+	  equal. Now, the overall length of each message is sent as first
+	  data item, so that DDD can check this value and abort with an
+	  error, if necessary. Thus, many errors might be detected now
+	  which could previously lead to a lot of follow-up errors.
+980427 kb
+additions for CPP_FRONTEND.
+	- now, the c++demo application is running with DDD and CPP_FRONTEND.
+	- the calling of DDD Handlers has been reworked. Virtual member
+	  function calls are avoided completely (an option to use them
+	  will be implemented in the future).
+	- the application programmer has to provide a DELETE-handler for
+	  each class derived from DDD_Object, which only contains a 
+	  'delete this'. This should be automated in future versions.
+---------------------------
+
+CHANGES 1.8.14 -> 1.8.15
+---------------------------
+980316 kb
+new command DDD_XferObjIsResent().
+	- returns XFER_RESENT_TRUE for objects which will receive an additional
+	  copy during XferEnd() (sent by another processor).
+---------------------------
+
+CHANGES 1.8.13 -> 1.8.14
+---------------------------
+980313 kb
+new command DDD_XferIsPrunedDelete().
+	- returns XFER_PRUNED_TRUE for objects with pruned DDD_XferDeleteObj()
+	  commands, XFER_PRUNED_FALSE otherwise.
+---------------------------
+
+CHANGES 1.8.12 -> 1.8.13
+---------------------------
+980128 kb
+new DDD module 'Join'.
+	- the Join module supports joining local object copies
+	  to distributed objects by contacting one of the
+	  distributed copies on an arbitrary processor which
+	  owns a copy.
+	- the current implementation is preliminary, not tested
+	  with large applications and not tuned for efficiency.
+	- if you are able to avoid Join and use Identify, do this.
+	  Join is an expensive operation.
+980121 kb
+added healing-feature to ConsCheck.
+	- with the "healing"-feature, the ConsCheck is able to detect
+	  local coupling inconsistencies and fix them by calling
+	  AddCoupling. However, such inconsistencies indicate
+	  consistency problems elsewhere (most of the cases the
+	  application based on DDD), which should be fixed by
+	  thinking hard and reimplement code which uses DDD
+	  functionality. Therefore, the healing feature has
+	  been switched off and kept in code just in case we
+	  need it at some (improbable) point in future.
+---------------------------
+
+CHANGES 1.8.11 -> 1.8.12
+---------------------------
+971024 kb
+improved memory handling.
+	- use compiler-switch XferMemFromHeap to instruct the Xfer
+	  module using the MemMgr's Heap-functions (Mark/Alloc/Release)
+	  to get memory for receive buffers and other data.
+	  Note: this feature is not yet in its final state and will
+	  be extended in future versions.
+	- use compiler-switch ConsMemFromHeap to instruct the ConsCheck
+	  module using the MemMgr's Heap-functions (Mark/Alloc/Release)
+	  to get memory for receive buffers and other data.
+	  Note: this feature is not yet in its final state and will
+	  be extended in future versions.
+971023 kb
+xfer more efficient, in space and time.
+	- used new container classes for several data structures in
+	  Xfer.
+	- now, DDD_XferCopyObj calls will be merged on the fly, as
+	  a result the XFERCOPY-handlers will only be called if the
+	  corresponding call to DDD_XferCopyObj is either new or
+	  wins against an existing call with respect to priority-
+	  merge.
+971020 kb
+new base level of container class data structures.
+	- introduced new object-oriented style via C preprocessor.
+	  implemented several efficient container classes with
+	  this style.
+---------------------------
+
+CHANGES 1.8.10 -> 1.8.11
+---------------------------
+971010 kb
+added error checks for various calls to PPIF.
+	- in several modules, PPIF functions had been called
+	  without checking for error conditions afterwards.
+	  Now, error checking has been added which will HARD_EXIT
+	  after PPIF reports an error.
+971010 kb
+fixed bug ('semantical problem') in xfer/unpack.c.
+	- during calls to AddDataScatter and other handlers,
+	  the order of calls for two or more incoming copies of one
+	  distributed DDD object could be: 1.XFER_REJECT, 2.XFER_NEW ...
+	  This was wrong, because the first handler call should be
+	  for the XFER_NEW object, the following calls for the
+	  XFER_REJECT objects. This has been fixed now for all handlers
+	  which get a 'newness'-argument.
+971009 kb
+added documentation.
+	- using the inline documentation and much additional texts
+	  (which are currently not in the distribution), a postscript
+	  file is generated (doc/ddd_doc.ps). This contains the
+	  reference manual, user's manual, tutorial, error-list,
+	  and implementation details ('inside ddd'). Currently,
+	  only the reference manual is in a fairly advanced state.
+971009 kb
+added DDD_XferWithAddData().
+	- this function returns a boolean value telling the caller
+	  if additional data will be really sent or just discarded.
+---------------------------
+
+CHANGES 1.8.9 -> 1.8.10
+---------------------------
+971007 kb
+Global coupling-table is now enlarged dynamically.
+	- the upper limit MAX_CPL has been removed. each time the maximal
+	  number of couplings on a processor is reached, its coupling table
+	  (and depending on this, other tables) is doubled in size. this is
+	  to make DDD more robust also on very, very big machines.
+971007 kb
+LowComm is now able to handle low-memory situations.
+	- if LowComm cannot get enough memory from the MemMgr-layer,
+	  it will try now to wait for running messages and free their
+	  send buffers. After that, enough memory should be available.
+	  The Xfer-implementation had to be changed slightly to use this
+	  feature.
+---------------------------
+
+CHANGES 1.8.8 -> 1.8.9
+---------------------------
+970909 kb
+added inline documentation.
+	- in some later version, the DDD sources will be completely
+	  documented by inline descriptions in DOC++ (ZIB Berlin)
+	  style. This is work in progress.
+970908 kb
+removed need for (very) large object table.
+	- in all earlier versions, DDD maintained on each processor
+	  a pointer array referencing all DDD objects on that processor.
+	  the need for these arrays has been removed in 1.8.9.
+	  Compile-switch WithFullObjectTable may be used to 
+	  enable the large object tables again, this might be useful
+	  for debugging.
+	  Without this compile-switch being set, DDD will _not_ have
+	  any knowledge about objects which do not have coupling
+	  (i.e. local objects). When copies of such objects are created,
+	  or those objects are involved in Identify-procedures, they
+	  will be put under DDD control. Otherwise, the application
+	  layer has to maintain the storage for these objects.
+---------------------------
+
+CHANGES 1.8.7 -> 1.8.8
+---------------------------
+970704 kb
+bugfix in Xfer module.
+	- reference-merging does now work also with rule XFER-C2 in all situations.
+---------------------------
+
+CHANGES 1.8.6 -> 1.8.7
+---------------------------
+970702 kb
+bugfix in Interface module.
+	- when a processor moved all its objects to another proc,
+	  in versions before 1.8.7 the interface representation
+	  hasn't been deleted. this is fixed now.
+970702 kb
+bugfix in Identify module.
+	- the changes of 970528 seem to work correctly now.
+	  did some software reorganisation.
+---------------------------
+
+CHANGES 1.8.5 -> 1.8.6
+---------------------------
+970701 kb
+added check for PPIF initialization in DDD_Init().
+970528 kb
+reinvented STAT statistical evaluation.
+	- the DDD_StatXXX functionality will be used 
+	  extensively in future versions in order to provide
+	  an interface for performance measuring and other
+	  accounting information from DDD to application level.
+970528 kb
+tuning in Identify module.
+	- replaced sorting of array with big entries by sorting
+	  of array with pointers to big entries. better performance
+	  on systems with poor memcpy-implementation.
+	- NOTE: this can lead to errors on complicated identification
+	  tasks. (normally it should work, however). keep that in mind.
+970417 kb
+added DDD_TYPE_BY_HANDLER for EL_OBJPTR in TypeDefine.
+	- normally, for EL_OBJPTR defined during TypeDefine
+	  the DDD_TYPE of the referenced object has to be given.
+	- now, one can replace this argument (a DDD_TYPE) by the
+	  constant DDD_TYPE_BY_HANDLER, and an additional argument
+	  which is a function pointer to a handler function of the
+	  type HandlerGetRefType, i.e. (see ddd.h)
+	     DDD_TYPE (*HandlerGetRefType) (DDD_OBJ o1, DDD_OBJ o2)
+	- DDD will call this handler whenever it needs to evaluate
+	  the referenced type. then, o1 is the object containing
+	  the reference, o2 is the referenced object (for which the
+	  type must be given). the function must return the actual
+	  type of o2.
+	- when defining arrays of EL_OBJPTR, the handler function
+	  will be called for each reference in turn.
+970417 kb
+change in priority consistency during xfer.
+	- when a local object is XFER_UPGRADEd during xfer/unpack,
+	  its priority has been set immediately (until 1.8.5).
+	- for calling the user-defined handler SETPRIORITY,
+	  the old prio-value had been restored into the object's
+	  DDD_HEADER; after the call to the handler (if any),
+	  the new priority value was inserted again.
+	- from 1.8.6 on: the priority isn't set immediately, but only
+	  after the call to SETPRIORITY. This implements the following 
+	  priority consistency model: BEFORE AND DURING the call
+	  to the SETPRIORITY handler, the object has its old priority.
+	  AFTER calling the SETPRIORITY handler, the object has its
+	  new priority.
+970416 kb
+fixed some bugs found by evaluation version of Purify.
+---------------------------
+
+CHANGES 1.8.4 -> 1.8.5
+---------------------------
+970414 kb
+fixed serious bug in xfer/unpack. NEVER USE 1.8.4!
+970411 kb
+added new option OPT_XFER_PRUNE_DELETE.
+	- with this option set to OPT_ON, DelCmds during transfer
+	  will discarded, if a XferCopyObj command for the same
+	  distributed object exists. Therefore, the object will
+	  not be deleted and created afterwards.
+	- the priority merging of the two objects will be as given
+	  in the specification, i.e., the new object will be accepted
+	  disregarding its priority.
+970327 kb
+fixed serious bug in xfer/unpack.c.
+	- bug could occur with procs>=4
+	- now coupling consistency should work properly.
+	- efficiency (runtime, message size and storage) is not quite
+	  clear for large problems. TODO: this must be checked.
+---------------------------
+
+CHANGES 1.8.3 -> 1.8.4
+---------------------------
+970310 kb
+additional options OPT_INFO_XFER, with values XFER_SHOW_xxx.
+	- can be used to control memory allocation in Xfer module.
+970310 kb
+additional error messages in ident.c.
+970310 kb
+bugfix in basic/topo.c (error occurred with procs>64).
+---------------------------
+
+CHANGES 1.8.2 -> 1.8.3
+---------------------------
+970306 kb
+increased MAX_TRIES timeout value to 50M.
+970305 kb
+added CtrlTimeouts(Detailed) switch in if/if.h.
+	- this may be used for checking the interface timout values.
+	- CtrlTimeouts displays the timeout value after each IF communication
+	  (on each proc one line for send/receive)
+	- CtrlTimeoutsDetailed displays the timeout values for each 
+	  message during a IF communication (on each proc one line for
+	  send/receive of any message)
+---------------------------
+
+CHANGES 1.8.1 -> 1.8.2
+---------------------------
+970304 kb
+increased size of notify buffer to 2*(n*(n-1)/2) (for message send/receive).
+---------------------------
+
+CHANGES 1.8 -> 1.8.1
+---------------------------
+970303 kb
+added new function DDD_IFInfoMemory().
+	- this function returns the number of bytes used for representing
+	  a given DDD interface.
+	- available in all FRONTENDs.
+970303 kb
+cleanup of memory management.
+	- removed some memory leaks.
+	- improved performance by introducing segments of memory instead
+	  of doing many, many alloc/free requests. this was done in
+	  xfer/sll.ct (for auxiliary data structures in Xfer), and in
+	  xfer/supp.c (for AddData structures).
+	- memory for DDD interfaces is constructed exactly as large as needed.
+	  up to now, memory has been wasted (esp. when there were many DDD-types
+	  as distributed objects). memory usage for interfaces will be
+	  about factor 6-8 smaller now.
+970217 kb
+removed lots of warnings with C++ on SGI.
+---------------------------
+
+CHANGES 1.7.8 -> 1.8
+---------------------------
+970217 kb
+started to C++-ize PPIF and extended functionality.
+970212 kb
+added powerful memory-management debugging tool.
+	- some switches (CheckPMEM, CheckAMEM, CheckTMEM) can be
+	  set at compiletime in dddi.h in order to control the
+	  memory usage of the DDD-library. each allocated chunk
+	  will be sizeof(size_t) bigger, in the additional section
+	  the size of the allocated memory is stored. this is used
+	  for printing of MALL and FREE output.
+970212 kb
+revised handler handling. :-)
+	- now, for each DDD-handler there is a corresponding
+	  SetHandler function (e.g., DDD_SetHandlerUPDATE for
+	  UPDATE-handler). The first argument of each handler
+	  function is the DDD_TYPE for which the new handler
+	  should be registered, the second argument is a
+	  pointer to the handler function itself (e.g., of
+	  type HandlerUPDATE).
+	- in ddd.h there is a list of prototypes for all handlers,
+	  i.e., now the compiler can do static type checking for
+	  handler functions and their parameters.
+	- the old functionality DDD_HandlerRegister with variable
+	  argument list is supported for downward compatibility.
+970212 kb
+introduced OLDSTYLE-warnings.
+	- for functions which are supported for downward 
+	  compatibility only and which will be removed in some
+	  future version, a warning is issued each time the
+	  function is called.
+	- additionally, some hints are added how to upgrade to new
+	  version.
+	- with DDD_OPTION OPT_WARNING_OLDSTYLE these warnings can
+	  be switched off.
+970212 kb
+revised handler calls in F_FRONTEND.
+	- now all relevant handlers are called also in F_FRONTEND
+	  version (with call-by-reference parameters).
+970211 kb
+implemented object-oriented CPP_FRONTEND prototype.
+	- supports C-style objects (as structs or classes) and
+	  Fortran-style objects (as collections of distributed
+	  arrays).
+	- implementation as object-oriented class hierarchy encapsulated
+	  the ANSI C implementation of DDD.
+	- class DDD_Library with a single instance represents
+	  the DDD library.
+	- class DDD_Object represents a distributed object.
+	- class DDD_IndexObject represents a object stored in
+	  array-like manner.
+	- template classes DDD_ObjectOf<T> and DDD_IndexObjectOf<T>
+	  may be used for very elegant parallelization of sequential
+	  object-oriented codes.
+	- class DDD_Interface encapsulates a DDD interface, communication
+	  can be done via DDD_GatherScatter-objects.
+	- now, C_FRONTEND, F_FRONTEND and CPP_FRONTEND in one single
+	  code.
+	- see coming documentation and demo examples for using CPP_FRONTEND.
+---------------------------
+
+CHANGES 1.7.7 -> 1.7.8
+---------------------------
+970205 kb
+added many USER_DATA streams feature.
+	- all IDs in interval [DDD_USER_DATA, DDD_USER_DATA_MAX] may
+	  be used for sending byte streams as AddData.
+970204 kb
+started with CPP_FRONTEND, designed some classes in ddd.h.
+970204 kb
+revision for global ID construction.
+	- the definition of MAX_PROCBITS_IN_GID has been moved to dddi.h.
+	  this gives the number of bits inside each global ID.
+	- the number of bits for the processor number inside the global ID
+	  is a limit for the maximum number of processors. now this number
+	  is checked in DDD_Init() with error message and exit.
+	- the overflow of global IDs is checked and DDD is exited with an
+	  error message. this will occur after 2^(32-MAX_PROCBITS_IN_GID) calls
+	  to DDD_HdrConstructor().
+---------------------------
+
+CHANGES 1.7.6 -> 1.7.7
+---------------------------
+970131 kb
+new element type EL_GBITS.
+	- with EL_GBITS, one can define components of DDD-types bitwise.
+	  1=GDATA, 0=LDATA. for DDD_TypeDefine, a line for defining a 
+	  bitwise element looks like this:
+	  EL_GBITS, &a, sizeof(a), bitarray
+	  where a is a structure component, sizeof(a) its size, and
+	  bitarray a character-array (unsigned char *) with length
+	  sizeof(a), where the bits are set according to GDATA or LDATA
+	  property.
+	- not implemented for F_FRONTEND.
+---------------------------
+
+CHANGES 1.7.5 -> 1.7.6
+---------------------------
+970129 kb
+new interface for general PriorityMerge.
+	- default for merging of priorities is MAXIMUM.
+	- a new default can be set by DDD_PrioMergeDefault()
+	- special exceptions can be introduced by DDD_PrioMergeDefine()
+	- the current setting is displayed by DDD_PrioMergeDisplay()
+	- the PrioMerge operation might be tested from application level
+	  via DDD_PrioMerge().
+	- all PrioMerge operations work with DDD_TYPE as first argument,
+	  i.e., one can define arbitrary PrioMerge logic for each DDD_TYPE.
+	- the Xfer-Module has been adapted so that it supports the general
+	  PrioMerge settings.
+970129 kb
+replaced all exit(1) calls by macro call HARD_EXIT.
+	- the current default for HARD_EXIT is assert(0), thus, one
+	  will get a core file after every DDD error.
+	- later (in production versions) one can replace this by
+	  simple exit(1) or similar.
+970129 kb
+added new parameter newness to calls of scatter-handlers.
+	- HANDLER_XFERSCATTER and HANDLER_XFERSCATTERX get an additional
+	  parameter 'newness', which is one of { XFER_REJECT, XFER_UPGRADE,
+	  XFER_NEW }, depending on an incoming objects status.
+	- this should be documented in RefMan.
+NOTE: changing of XFERSCATTER parameterlist in applications necessary!
+---------------------------
+
+CHANGES 1.7.4 -> 1.7.5
+---------------------------
+970128 kb
+added OPT_INFO_XFER.
+	- this runtime option shows additional (statistical)
+	  information during XferBegin/XferEnd. default is OPT_OFF.
+970128 kb
+changed interface display functions and added some output.
+	- DDD_IFDisplay now takes an argument DDD_IF in order
+	  to display only one interface.
+	- DDD_IFDisplayAll is a new function displaying all
+	  interfaces (formerly DDD_IFDisplay)
+	- DDD_IFSetName allows to define a textual description for
+	  interfaces, which is displayed by DDD_IFDisplay and
+	  DDD_IFDisplayAll.
+NOTE: this change requires renaming of function DDD_IFDisplay in
+all applications!
+---------------------------
+
+CHANGES 1.7.3 -> 1.7.4
+---------------------------
+970124 kb
+fixed bug in interface communication.
+	- IF_Axxx (i.e. communication by attribute) crashed when
+	  IF-parts without objects existed.
+970124 kb
+increased size of NOTIFY-table.
+---------------------------
+
+CHANGES 1.7.2 -> 1.7.3
+---------------------------
+970121 kb
+changed order of handler calls in xfer-unpack implementation.
+	- now MKCONS handler gets second parameter 'newness'.
+	  XFER_UPGRADE for objects upgraded according RULE C3.
+	  XFER_NEW for new objects.
+	- this should be documented in RefMan.
+NOTE: changing of MKCONS parameterlist in applications necessary!
+---------------------------
+
+CHANGES 1.7.1 -> 1.7.2
+---------------------------
+970115 kb
+changed xfer-unpack implementation.
+	- up to ddd-1.7.1, the unpack-handlers (i.e. UPDATE, XFERSCATTER,
+	  SETPRIORITY, OBJMKCONS) where called for each incoming message
+	  in turn. now, all UPDATE handlers are called, then all XFERSCATTER
+	  handlers and so on (SETPRIORITY, OBJMKCONS).
+	- this is a temporary solution. in later versions, the handler
+	  calls will be reworked; efficiency will be improved by cleaning
+	  up the loop structure in xfer-unpack.
+---------------------------
+
+CHANGES 1.7 -> 1.7.1
+---------------------------
+970110 kb
+re-implementation of current interface functionality.
+	- only one implementation for 24 DDD_IFxxx interface functions
+	  (via templates).
+	- the following possibilities can be used now:
+	    { C_FRONTEND, F_FRONTEND} x
+	    { Exchange, Oneway, ExecLocal} x
+	    { one DDD_ATTR, all DDD_ATTRs } x
+	    { normal gather/scatter-params, extended gather/scatter-params }
+	- the next step will be implementation of maskable DDD_ATTRs.
+970110 kb
+standard interface cannot be used for communication.
+	- user must define an interface in order to communicate.
+	  the standard interface is only used for creating
+	  the user interfaces and cannot be used with DDD_IF..
+	  commands anymore.
+	- object shortcuts will not be computed for the standard
+	  interface.
+970110 kb
+added second call to handler HANDLER_SETPRIORITY.
+	- now the SETPRIORITY-handler is called when a local
+	  object's priority is set by DDD_PrioritySet() and when
+	  an object's priority is upgraded due to an incoming object
+	  with same gid, but higher (or equal) priority.
+	- this feature is a temporary setting. in some later version,
+	  we will rework all handler calls during xfer-unpack in order
+	  to clean up "historical" developments.
+---------------------------
+
+CHANGES 1.6.10 -> 1.7
+---------------------------
+961220 kb
+added option OPT_WARNING_REF_COLLISION, with default OPT_ON.
+	- each EL_OBJPTR (i.e. each reference) inside a DDD object
+	  must be NULL_REF or a pointer to a valid DDD-object.
+	  when two or more local objects of one distributed object
+	  exist, each reference element must contain either NULL_REF or
+	  a reference to THE SAME valid DDD-object. if this is not the
+	  case, a warning 'reference collision' will be issued by DDD.
+	  this option may be used for switching this warning off, which
+	  might be dangerous due to possible data inconsistencies.
+961219 kb
+switched on merge-mode for xfer-unpack.
+	- now references of
+	  incoming objects and objects already on the local processor
+	  are merged.
+---------------------------
+
+CHANGES 1.6.9 -> 1.6.10
+---------------------------
+961209 kb
+new function DDD_InfoNCopies().
+	- returns number of copies of a local object. The local object itself
+	  is not included.
+961128 kb
+integrated changes from F_FRONTEND branch.
+	- now F_FRONTEND is available with reference conversion,
+	  part of the interface communication functions and tested
+	  with 1-2 simple applications.
+updated README, arch and ppif.
+---------------------------
+
+CHANGES 1.6.8 -> 1.6.9
+---------------------------
+961128 kb
+bugfixes in Identify-module.
+---------------------------
+
+CHANGES 1.6.7 -> 1.6.8
+---------------------------
+961127 kb
+changed prototype of DDD_IFDefine.
+	- second parameter is DDD_TYPE*, forth and sixth parameters
+	  are DDD_PRIO*. This change requires changes in all applications.
+changed value of DDD_USER_DATA to positive value.
+	- also usage of DDD_USER_DATA in Xfer-module has been adapted.
+still more functionality for Identify-module.
+	- now OPT_IDENTIFY_MODE may be set to two different values:
+		- in IDMODE_LISTS, the order of Identify-command issueing is
+		  relevant, i.e., tupel1=(5,3) and tupel2(3,5) are different.
+		- in IDMODE_SETS, the order of Identify-commands in each tupel
+		  is ignored; the IdentifyModule itself reorders each tupel's
+		  entries. then, tupel1 and tupel2 from the above example are
+		  the same.
+961126 kb
+additional functionality for Identify-module.
+	- in calls to DDD_IdentifyObject, now objects can be used as
+	  identifiers which are also identified in the current
+	  IdentifyBegin/IdentifyEnd step. I.e., identification can use
+	  hierarchical IdentifyObject-calls, objects can be used as identifers
+	  which itself haven't been identified before!
+	- communication has been tuned, now REALLY only gid and prio is
+	  sent for each object which must be identified.
+	- lots of debugging levels introduced.
+---------------------------
+
+CHANGES 1.6.6 -> 1.6.7
+---------------------------
+961026 kb
+some changes due to comments from Klaus-Dieter Oertel.
+	- changed typedefs for DDD_PRIO, DDD_ATTR etc to unsigned int
+	- added functions to encapsulate PPIF's global variables me,
+	  master, procs (DDD_InfoMe etc)
+961016 kb
+added changes from ug-ddd-version into actual ddd-repository.
+	- some new interface functions, an interface checker
+	- moved HANDLER_PRIORITYSET from prio.c into xfer.c
+	- new functions DDD_SearchHdr and DDD_InfoIsLocal
+961019 kb
+added PITFALLS file to collect common errors by DDD users.
+---------------------------
+
+CHANGES 1.6.5 -> 1.6.6
+---------------------------
+960906 kb
+added consistent object deletion during xfer (from HANDLER_DELETE).
+added HANDLER_SETPRIORITY.
+changes for NEC-SX4 compilation.
+added new functions DDD_IFExecLocal and DDD_IFAExecLocal.
+960905 kb
+xfer-module completely rewritten.
+	- complete coupling consistency with 2 communication phases.
+	- spread-communication of prior versions had been removed.
+	- xfer-module now implements the written xfer-specification.
+	- dddic checked approx. 100000 testcases for xfer of one
+	  distributed object, without errors.
+	- data structures are based on templates now, which implement
+	  linked list with free lists.
+	- abstractions have been worked out more carefully.
+	- testing was successful for fedemo.
+960813 kb
+cplmsg.c, added new information about coupling consistency during
+transfer.
+960722 kb
+lowcomm.c, new low communication layer.
+	- lowcomm supports messages consisting of several tables and/or
+	  data chunks. it also encapsulates n-to-n-messaging; it notifies
+	  the receiving procs, allocates message buffers, computes
+	  message sizes.
+	- reworked xfer-module and ConsCheck in order to use the new
+	  lowcomm layer. therefore, these modules have been restructured
+	  completely.
+960715 kb
+topo.c, reworked channel handling. code for using DDD_GetChannels()
+is much smaller now.
+960712 kb
+introduced general message structure, now Notify() doesn't rely on
+special messages for Xfer, Spread, Cons etc anymore.
+960703 kb
+xfer, split XferInfo-list into two, one for objects and one for 
+couplings.
+---------------------------
+
+CHANGES 1.6.4 -> 1.6.5
+---------------------------
+960618 kb
+restructured Makefile.ddd, in order to establish new structure
+of arch/ppif/ddd and applications.
+---------------------------
+
+CHANGES 1.6.3 -> 1.6.4
+---------------------------
+960611 kb
+typemgr.c, changed behaviour on errors.
+	- now every error during TypeMgr operations leads to exit(1)
+	  of program.
+960610 kb
+pack.c/unpack.c, enabled runtime activation of xfer debug output.
+	- the contents of messages being sent/received during xfer
+	  may be printed out by activating DDD option OPT_DEBUG_XFERMESGS.
+960607 kb
+added object size testing to XferCopyObjX and ObjGet.
+	- via DDD options OPT_WARNING_SMALLSIZE and OPT_WARNING_VARSIZE_OBJ
+	  issuing of warnings on size!=desc->size events can be controlled.
+960607 kb
+xfer.c, added handler HANDLER_DELETE for different way of object deletion.
+	- HANDLER_DELETE is an alternative way of deleting objects; the 
+	  necessary DDD_HdrDestructor must be called by the applications
+	  HANDLER_DELETE handler.
+	- the handler definition in ddd.h had been reworked in order to 
+	  get more independent of future additions to handler list.
+960604 kb
+fixed bug in compiler.h.
+    - alignment entry for __INDIGO__ was 4 (8 is the correct value)
+---------------------------
+
+CHANGES 1.6.2 -> 1.6.3
+---------------------------
+960528 kb
+integrated changes for F_FRONTEND.
+	- this includes all work by Jens Boenisch, together with some
+	  integration work and debugging by kb. simple test programs 
+	  in fortran with ddd are working now.
+	- the main point NOT implemented in this version is handling
+	  of 'pointers', i.e., how f77-indices are translated into
+	  ddd references and globalized/localized during xfer.
+	  this work will be done during the next implementation phase
+	  of F_FRONTEND.
+	- main features working right now: TypeMgr, ObjMgr, IFDefine,
+	  Xfer without references.
+---------------------------
+
+CHANGES 1.6.1 -> 1.6.2
+---------------------------
+960512 kb
+unpack.c, complete rewrite
+	- LocalObjectsList() caused a serious efficiency problem. it was called
+	  several times during each transfer. therefore, the complexity of xfer
+	  was #local_objects*log(#local_objects)*C, where C is a (not very small)
+	  constant. 
+	  in order to provide an efficient solution, the unpack-module has been
+	  rewritten completely. now a list of new (incoming) objects is constructed
+	  an sorted; this lead to a complexity which is independent of
+	  #local_objects, and is depending only on the number of objects
+	  in interface, instead. 
+	  debugging and testing had been done quite thoroughly.
+---------------------------
+
+CHANGES 1.6 -> 1.6.1
+---------------------------
+960507 kb
+ifcreate.c, improved memory complexity
+	- due to bad estimates of memory needed for representing the
+	  interfaces (as lists of coupling pointers), mmuch memory had
+	  had been wasted at runtime (about 0.5MB per interface and processor).
+	  this has been fixed by maintaining a coupling counter per processor,
+	  which can be used to compute the exact size of the standard interface
+	  and from this the maximum size for each defined interface. these sizes
+	  are usually much smaller than the rough estimates before this fix.
+---------------------------
+
+CHANGES 1.5 -> 1.6
+---------------------------
+960402 kb
+typemgr.c, added EL_CONTINUE feature
+	- DDD_TypeDefine() calls may be ended by EL_CONTINUE now (instead of
+	  EL_END), which ends up with partially defined DDD_TYPEs.
+	  these partially defined DDD_TYPEs may be defined further by
+	  more calls to DDD_TypeDefine().
+---------------------------
+960209 kb
+ident.c, fixed two bugs:
+	- VChannel allocation was blocking in some cases;
+	  fix: replaced VChannel allocation by GetChannel() from topo.c
+	- asynchronous info functions didn't cooperate with get_SHMEM-ppif for T3D.
+	  (SHMEM-ppif had stronger synchronization requirements than expected).
+	  fix: sorted Info-functions, first poll receives, then poll sends.
+---------------------------
+960207 kb
+unpack.c, fixed bug
+	- when 0-pointer was unpacked, the HDR2OBJ conversion was called.
+	  this is not valid for 0-pointers.
+	  fix: inserted if-statement.
+---------------------------
+960110 kb
+renamed main.c to ddd.c.
+---------------------------
+
+CHANGES 1.4 -> 1.5
+---------------------------
+960110 kb
+objmgr.c, second complete rewrite
+	- reorganized DDD_HDR constructors
+    - introduced 3 interfaces for object construction/destruction
+---------------------------
+960113 kb
+ifuse.c, removed bug in DDD_IFOneway()
+---------------------------
+960117 kb
+IF-module
+	- created new files ifcmds.c and ifobjsc.c
+	- introduced obj-shortcut-tables for quick reference during
+	  interface-communication
+	- created shortcut-table-invalidation/validation-interface
+---------------------------
+
+CHANGES 1.3 -> 1.4
+---------------------------
+951103 kb
+DDD_StructRegister
+	- second argument (ddd_hdr) vanished
+	- use EL_DDDHDR instead (in element list)
+	- possibility to recursively register known DDD_TYPEs,
+	  via entering their id in the EL_xxx field
+	- better error checking and reporting
+	- DDD_HDR itself is a DDD-object (DDD_TYPE=0)
+	- C++ support: inheritance of DDD-objects is possible,
+	  virtual inheritance gives a warning (nty)
+	- added mask for easy and efficient object copying
+	- restructured code (C++style)
+---------------------------
+951103 kb
+objmgr.c, complete rewrite.
+	- now object-oriented style is supported:
+	  constructors, new-operators etc
+	- handler interface rewritten
+	- downward compatibility with V1.3:
+	  DDD_ObjGet still supported
+	- CopyConstructor uses copymask from DDD_StructRegister
+	- changed definition of handlers (and their names, just
+	  to be sure)
+---------------------------
+951106 kb
+main.c, changed parameters of DDD_Init to
+void DDD_Init (int *argcp, char ***argvp)
+for compatibility with MPI and similar parallel
+programming models. Involves changes of parameters
+of InitPPIF and all its current implementations.
+---------------------------
+951116 kb
+created typemgr.c (from main.c)
+	- removed DDD_StructRegister, DDD_StructDisplay.
+	- created new TypeMgr interface DDD_TypeDeclare(),
+	  DDD_TypeDefine(), DDD_TypeDisplay().
+	- when defining types, the targets for all references
+	  (EL_OBJPTR) have to be specified
+---------------------------
+951117 kb
+arbitrary DDD_HEADER offsets
+	- from now on DDD_HEADER may have arbitrary offset
+	  for each DDD_TYPE
+---------------------------
+951121 kb
+changed OBJ_DESCR to TYPE_DESC, EL_DESCR to ELEM_DESC,
+objstruct to theTypeDefs
+---------------------------
+951122 kb
+renamed DDD_DisplayIF() to DDD_IFDisplay()
+---------------------------
+

@@ -1,0 +1,15 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+CXX=/usr/bin/g++ 
+CC=/usr/bin/gcc
+DEPENDENCIES=
+
+Name: myimplementation
+Version: 2.5-dev
+Description: dune-implementation module
+URL: http://dune-project.org/
+Requires: ${DEPENDENCIES}
+Libs: -L${libdir} -ldunepdelab -lugL
+Cflags: -I${includedir}

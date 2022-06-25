@@ -1,0 +1,36 @@
+# CMake generated Testfile for 
+# Source directory: /home/paddy/pkg/dune_2d/dune-grid/dune/grid/test/yasp
+# Build directory: /home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+add_test(test-yaspgrid-backuprestore-equidistant "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-backuprestore-equidistant")
+set_tests_properties(test-yaspgrid-backuprestore-equidistant PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-backuprestore-equidistant" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-backuprestore-equidistant-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-backuprestore-equidistant")
+set_tests_properties(test-yaspgrid-backuprestore-equidistant-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-backuprestore-equidistant" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-backuprestore-equidistantoffset "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-backuprestore-equidistantoffset")
+set_tests_properties(test-yaspgrid-backuprestore-equidistantoffset PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-backuprestore-equidistantoffset" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-backuprestore-equidistantoffset-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-backuprestore-equidistantoffset")
+set_tests_properties(test-yaspgrid-backuprestore-equidistantoffset-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-backuprestore-equidistantoffset" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-backuprestore-tensor "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-backuprestore-tensor")
+set_tests_properties(test-yaspgrid-backuprestore-tensor PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-backuprestore-tensor" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-backuprestore-tensor-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-backuprestore-tensor")
+set_tests_properties(test-yaspgrid-backuprestore-tensor-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-backuprestore-tensor" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-entityshifttable "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-entityshifttable")
+set_tests_properties(test-yaspgrid-entityshifttable PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-entityshifttable" SKIP_RETURN_CODE "77" TIMEOUT "300")
+add_test(test-yaspgrid-tensorgridfactory "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-tensorgridfactory")
+set_tests_properties(test-yaspgrid-tensorgridfactory PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-tensorgridfactory" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-tensorgridfactory-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-tensorgridfactory")
+set_tests_properties(test-yaspgrid-tensorgridfactory-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-tensorgridfactory" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-yaspfactory-1d "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-yaspfactory-1d")
+set_tests_properties(test-yaspgrid-yaspfactory-1d PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-yaspfactory-1d" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-yaspfactory-1d-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-yaspfactory-1d")
+set_tests_properties(test-yaspgrid-yaspfactory-1d-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-yaspfactory-1d" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-yaspfactory-2d "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-yaspfactory-2d")
+set_tests_properties(test-yaspgrid-yaspfactory-2d PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-yaspfactory-2d" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-yaspfactory-2d-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-yaspfactory-2d")
+set_tests_properties(test-yaspgrid-yaspfactory-2d-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-yaspfactory-2d" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-yaspfactory-3d "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-yaspfactory-3d")
+set_tests_properties(test-yaspgrid-yaspfactory-3d PROPERTIES  PROCESSORS "1" REQUIRED_FILES "test-yaspgrid-yaspfactory-3d" SKIP_RETURN_CODE "77" TIMEOUT "666")
+add_test(test-yaspgrid-yaspfactory-3d-mpi-2 "/usr/local/bin/mpiexec" "-n" "2" "/home/paddy/pkg/dune_2d/dune-grid/build-cmake/dune/grid/test/yasp/test-yaspgrid-yaspfactory-3d")
+set_tests_properties(test-yaspgrid-yaspfactory-3d-mpi-2 PROPERTIES  PROCESSORS "2" REQUIRED_FILES "test-yaspgrid-yaspfactory-3d" SKIP_RETURN_CODE "77" TIMEOUT "666")

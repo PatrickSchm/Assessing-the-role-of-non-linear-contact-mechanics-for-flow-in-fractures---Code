@@ -1,0 +1,75 @@
+/****************************************************************************/
+/** \page   configure configure - Configure a BVP
+
+ \section Description
+   This command configures the BPV, calling BVP_Configure.
+   The arguments depend on the domain module.
+
+\section Syntax
+   'configure \<BVP name> ...'
+
+ \section Example
+   'configure test $d Quadrilateral $P 2 1.1 1.3'
+
+   In the 2D standard domain module, the BVP test will be coupled with
+   a quadrilateral with corners (0,0), (1,0), (1.1,1.3) and (0,1).
+   
+ \section Keywords
+   boundary value problem, change
+*/
+/****************************************************************************/
+
+/****************************************************************************/
+/** \page  close  close - Close current multigrid
+
+ \section Description
+   This command closes the current (or all) open multigrid(s),
+   frees their heaps and closes all the pictures belonging to them,
+   calling DisposeMultiGrid() and DisposePicture().
+
+\section Syntax
+   'close [$a]'
+
+  <li>  $a  - close all multigrids
+   
+ \section Keywords
+   multigrid, close
+*/
+/****************************************************************************/
+
+/****************************************************************************/
+/** \page   new new - Allocate a new multigrid
+
+\section Description
+   This command allocates a new multigrid, using the function CreateMultiGrid(). 
+   It allocates heap and a new multigrid structure.
+   The specification of the boundary value problem must be supplied by
+   the user with the functions CreateProblem() and CreateDomain().
+   It also creates the corner vertices and nodes of the domain.
+
+\section Syntax
+   'new [\<mgname>] $b \<boundary value problem> $f \<format> $h \<heapsize> [$n] [$e]'
+
+ <ul>
+   <li> \<mgname\>  - the name of the multigrid (default is 'untitled-\<nb\>') </li>
+   <li> $b \<boundary~value~problem\> - a boundary value problem </li>
+   <li> $f \<format>     - one of the enroled formats matching with \<boundary value problem>  </li>
+   <li> $n		- do not use optimized insert element function  </li>
+   <li> $e		- empty grid (no vertices, no elements)  </li>
+   <li> $h \<heapsize\>  - the heapsize to be allocated in byte (or use suffix 
+			    "K" for kilobyte, "M" for megabyte, "G" for gigabyte)  </li>
+ </ul>
+
+\section Examples
+   'new $p TestProblem $f nc $h 30000000;'
+   
+   'new $b TestProblem $f nc $h 30000K;'
+   
+   'new $b TestProblem $f nc $h 30M;'
+   
+ \section Keywords
+   multigrid, new, create
+
+   Implemented in the function NewCommand()
+*/
+/****************************************************************************/

@@ -1,0 +1,15 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+CXX=/usr/bin/g++ 
+CC=/usr/bin/gcc
+DEPENDENCIES=
+
+Name: dune-geometry
+Version: 2.7-git
+Description: DUNE (Distributed and Unified Numerics Environment) geometry module
+URL: http://dune-project.org/
+Requires: ${DEPENDENCIES}
+Libs: -L${libdir} -ldunegeometry
+Cflags: -I${includedir}

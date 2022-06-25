@@ -1,0 +1,2176 @@
+
+/** \struct domain
+
+The DOMAIN structure describes a two- or three-dimensional domain. This geometry
+information is used by UG when it refines a grid, i.e. complex geometries are approximated
+better when the grid is refined. The DOMAIN structure is a directory in the
+environment tree (see ENVIRONMENT in the ug/low section). 
+
+A domain is made up of one or several `boundary segments` which are defined by the
+BOUNDARY_SEGMENT (see that page) structure. 
+The BOUNDARY_SEGMENT objects are stored in the environment
+tree in the corresponding DOMAIN. The points where boundary segments join are
+called corners of the domain. For each corner a NODE is automatically created.
+
+Domains are created with the function CreateDomain.
+
+. d - Makes the DOMAIN an environment directory. d stores also the name of
+the domain.
+
+. numOfSegments -  Gives the number of BOUNDARY_SEGMENT structures that
+will define the domain. 
+
+. numOfCorners - Number of corners defined by the domain.
+
+MACROS:
+
+The components of the DOMAIN structure are only read internally. The
+user only creates domains with the function CreateDomain. Therefore
+no access macros are provided.
+
+EXAMPLES:
+
+The following code fragment shows the definition of a simple two-dimensional
+domain. The domain is the unit circle defined by two boundary segments, the
+upper half circle and the lower half circle. Therefore the domain has two
+corners, two boundary segments and one subdomain (the domain itself).
+
+The following two functions of type BndSegFuncPtr define the
+mapping for the upper and lower half circle respectively.
+
+\verbatim
+// circleBoundary maps [0.0,1.0] to the upper half circle
+static INT circleBoundaryUpper (void *data, DOUBLE *param, DOUBLE *result)
+{
+    DOUBLE lambda;
+
+    // retrieve parameter value 
+    lambda = param[0];
+
+    // check range
+    if ((lambda<0.0)||(lambda>1.0)) return(1);
+
+    // fill result 
+    result[0] = cos(PI*lambda); // x  PI defined in misc.h 
+    result[1] = sin(PI*lambda); // y 
+
+    // return ok 
+    return(0);
+}
+
+// circleBoundary maps [0.0,1.0] to the lower half circle
+static INT circleBoundaryLower (void *data, DOUBLE *param, DOUBLE *result)
+{
+    DOUBLE lambda;
+
+    // retrieve parameter value 
+    lambda = param[0];
+
+    // check range 
+    if ((lambda<0.0)||(lambda>1.0)) return(1);
+
+    // fill result 
+    result[0] = cos(PI+PI*lambda); // x  PI defined in misc.h 
+    result[1] = sin(PI+PI*lambda); // y 
+
+    // return ok 
+    return(0);
+}
+\endverbatim
+
+The following function InitUnitCircle uses the functions
+CreateDomain and CreateBoundarySegment in order to create
+a domain and the list of boundary segments for that domain.
+
+\verbatim
+static INT InitUnitCircle (void)
+{
+    // allocate new domain structure 
+    if (CreateDomain(
+            "circle",               // name of the new domain               
+            2,                      // number of boundary segments          
+            2                       // number of corners
+       )==NULL) return(1);
+
+    INT pt[3];
+    DOUBLE alpha[3], beta[3];
+    alpha[0] = 0.0; beta[0] = 1.0;
+
+    pt[0] = 0; pt[1] = 1;
+    // allocate the boundary segments, segment allocation must              
+    // immediately follow the domain definition.                            
+    // WARNING! Updated example to use `CreateBoundarySegment` instead
+    // of `CreateBoundarySegment2D`, but updated version was not tested...
+    //  -- 2017-08-23
+    if (CreateBoundarySegment(
+            "circle bnd upper",     // name of the boundary segment         
+            1,                      // number of left subdomain             
+            0,                      // number of right subdomain            
+            0,                      // number of segment, starting with 0
+            NON_PERIODIC,
+            pt,                     // number of corners
+            &alpha,                 // begin of parameter interval          
+            &beta,                  // end of parameter interval            
+            circleBoundaryUpper,    // function mapping parameter to world  
+            NULL                    // user defined pointer to be supplied  
+       )==NULL) return(1);
+
+    pt[0] = 1; pt[1] = 0;
+    if (CreateBoundarySegment(
+            "circle bnd lower",     // name of the boundary segment         
+            1,                      // number of left subdomain             
+            0,                      // number of right subdomain            
+            1,                      // number of segment, starting with 0
+            pt,                     // number of corners
+            &alpha,                 // begin of parameter interval          
+            &beta,                  // end of parameter interval            
+            circleBoundaryLower,    // function mapping parameter to world  
+            NULL                    // user defined pointer to be supplied  
+       )==NULL) return(1);
+
+    // return ok 
+    return(0);
+}
+\endverbatim
+
+For a 3D example see e.g. the application appl3d.
+
+\sa BOUNDARY_SEGMENT, CreateDomain, CreateBoundarySegment
+
+*/
+
+
+/*! \struct boundary_segment
+ \brief Data structure defining part of the boundary of a domain
+
+STRUCTURES:
+
+\verbatim
+typedef INT (*BndSegFuncPtr) (void *,DOUBLE *,DOUBLE *);
+
+typedef struct boundary_segment BOUNDARY_SEGMENT;
+\endverbatim
+
+DESCRIPTION:
+
+A domain for UG is described as a set of boundary segments defined
+by the BOUNDARY_SEGMENT structure. Each boundary segment is a mapping
+from `d`-1 dimensional parameter space to `d` dimensional eucledian space.
+The parameter space is an interval [a,b] in two dimensions or a rectangle
+[a,b]x[c,d] in three dimensional applications.
+
+`2D boundary segments`
+\verbatim
+      0        1
+      +--------+     maps [a,b] to R x R
+      a        b
+\endverbatim
+
+`3D boundary segments`
+\verbatim
+    d +--------+     maps [a,b]x[c,d] to R x R x R
+      |3      2|
+      |        |
+      |        |
+      |0      1|
+    c +--------+
+      a        b
+\endverbatim
+
+
+For all boundary segments the points in `d` dimensional space corresponding to the parameters
+a and b in two dimensions ((a,c),(a,d),(b,c),(b,d) in three dimensions)
+are called `corners` of the domain. Locally for each boundary segment the
+corners are numbered like shown in the figures above.
+The corners are numbered `globally` in a consecutive way beginning with 0.
+`CAUTION:` boundary segments must be defined in such a way that no two
+corners are identical!
+
+In two dimensions `internal boundary
+segments` can be defined in order to divide the domain into `subdomains`
+having different materials for example. The subdomains are numbered consecutively
+beginning with 1. By default the exterior of the domain has number 0.
+
+Boundary segments are created with the function CreateBoundarySegment.
+
+. v - The BOUNDARY_SEGMENT structure is an environment variable (see ENVIRONMENT),
+therefore it has the ENVVAR v as its first component. v stores also the
+name of the boundary segment.
+
+. left,right - Numbers of left and right subdomain. The right subdomain is where the
+normal vector of the curve points to in a right handed coordinate system. The TeX
+version of this page contains two figures for clarification. 
+In 2D it is simple: Walk along the curve in direction of increasing parameter
+values and look to the right. There is the right subdomain. In 3D the rule
+is as follows. Let the thumb point in direction of increasing values
+of the first parameter, let the index finger point in direction of
+increasing values of the second parameter, then the middle finger
+points to the right subdomain.  
+
+. id - Number of the boundary segment beginning with zero.
+
+. segType - Type of boundary segment. Currently only NON_PERIODIC is
+allowed. Later periodic boundary segments will be implemented.
+
+. points - Mapping of local numbers of corners to global numbers. Remember, all
+global numbers of corners must be different. The local numbering scheme can
+be seen from the figures above.
+
+. resolution - Parameter indicating the curvature of the boundary segment. This is
+used mainly by the graphics module in order plot a boundary segment. For
+straight lines 1 is sufficient.
+
+. alpha,beta - Defines the parameter space. In 2D this is the interval
+[alpha[0],beta[0]], in 3D this is the rectangle 
+[alpha[0],beta[0]] x [alpha[1],beta[1]] (or a=alpha[0], b=beta[0],
+c=alpha[1], d=beta[1] in the figure above.
+
+. BndSegFunc - Pointer to a C function describing the mapping from parameter
+space to the `d`-space. This function must be of type BndSegFuncPtr.
+(see below).
+
+. data - User defined pointer. This pointer is passed as the first
+argument to the BndSegFunc of the segment. This pointer can be used
+to construct an interface to geometry data files, e.g. from a CAD system.
+
+. BndSegFuncPtr - Data type of the functions mapping parameter space to
+`d`-space. The first argument of type void * is the user data pointer from
+the corresponding BOUNDARY_SEGMENT. The second parameter of type DOUBLE *
+provides an array containing the parameters where the boundary segment
+function should be evaluated (one number in 2D, two numbers in 3D). The
+third parameter of type DOUBLE * provides an array where the result can be placed
+(x,y values in 2D, x,y,z values in 3D).
+
+MACROS:
+
+The components of the BOUNDARY_SEGMENT structure are accessed through
+the BNDSEGDESC structure, see that man page.
+
+EXAMPLES:
+
+For an example how a domain is defined see the DOMAIN page.
+
+\sa DOMAIN, CreateDomain, CreateBoundarySegment.
+
+
+.p bndseg2d.eps
+.cb
+Boundary segments in 2D.
+.ce
+
+.p bndseg3d.eps
+.cb
+Boundary segments in 3D.
+.ce
+D*/
+
+/*! \struct problem
+
+STRUCTURES:
+
+\verbatim
+typedef INT (*CoeffProcPtr) (DOUBLE *, DOUBLE *);
+typedef INT (*UserProcPtr) (DOUBLE *, DOUBLE *);
+typedef INT (*ConfigProcPtr) (INT argc, char **argv);
+
+
+typedef struct problem PROBLEM ;
+\endverbatim
+
+DESCRIPTION:
+
+The PROBLEM data type is used to give a complete description
+of the pde to be solved. Since this is a UG data type and UG is
+independent of the pde to be solved it must be a very general mechanism.
+The abstraction is that a problem is completely described by
+(1) The domain, (2) the pde, (3) coefficient functions for the pde
+and (4) boundary conditions. The first two items are handled easily.
+When creating a PROBLEM then the name of a DOMAIN has to be passed
+as a parameter (see example below). The pde to be solved is determined
+by the problem class library that is linked to the UG library. In order
+to be sure that a problem description and the problem class library
+are intended for the same pde, each problem class library exports
+in identification number that has to coincide with the
+number given in the problem description. Problems are created by
+the function CreateProblem.
+
+. CoeffProcPtr - This function gets a DOUBLE and a DOUBLE array, which are usually
+called in and out. These functions are only called by the problem class
+libraries, therefore the length of these arrays and the use of their entries
+is not determined by UG. UG only stores pointers to these user definable functions!
+
+. UserProcPtr - Same as a CoeffProcPtr but both arrays are of type DOUBLE *.
+
+. ConfigProcPtr - Problem configuration function which is called be the UG command
+reinit. Parameters argc, argv are those passed to the function implementing
+the reinit command. This function can be used to change a parameter in the
+problem description from the shell. E.g. the Reynolds number is a parameter in a
+Navier-Stokes calculation. One could write a configuration functions that reads
+the Reynolds number from the command line of the reinit command or from
+a UG shell variable.
+
+
+MACROS:
+
+\verbatim
+INT PROBLEMID (PROBLEM *p);
+\endverbatim
+Extracts the problem identification number from a problem.
+
+\verbatim
+ConfigProcPtr CONFIGFUNC (PROBLEM *p);
+\endverbatim
+Returns a pointer to the configuration function of the problem.
+
+\verbatim
+INT NUMCOEFF (PROBLEM *p); 
+\endverbatim
+Returns the number of coefficient functions defined in the problem description.
+
+\verbatim
+INT NUMUSERFCT (PROBLEM *p);
+\endverbatim
+Returns the number of user functions in the problem description.
+
+\verbatim
+CoeffProcPtr COEFFFUNC (PROBLEM *p,INT i); 
+\endverbatim
+Returns a pointer to the i-th coefficient function of the problem.
+The meaning of coefficient function i is determined by the problem class
+library.
+
+\verbatim
+UserProcPtr USERFUNC (PROBLEM *p,INT i);
+\endverbatim
+Returns a pointer to the i-th user function of the problem.
+The meaning of user function i is determined by the problem class
+library.
+
+EXAMPLES:
+
+For a detailed example see the diff2d and cd3d description.
+
+\sa
+BOUNDARY_CONDITION, CreateProblem.
+
+*/
+
+/*D
+BOUNDARY_CONDITION - Data type defining a boundary condition.
+
+STRUCTURES:
+
+\verbatim
+typedef INT (*BndCondProcPtr) (void *, void *, DOUBLE *, DOUBLE *, INT *);
+
+struct bndcond {
+
+    // fields for environment variable
+    ENVVAR v;
+
+    // fields for boundary condition
+    INT id;                // corresponds to boundary segment id ! 
+    BndCondProcPtr BndCond;// function defining boundary condition 
+    void *data;            // additional data for bnd cond 
+} ;
+
+typedef struct bndcond BOUNDARY_CONDITION ;
+\endverbatim
+
+DESCRIPTION:
+
+The data type BOUNDARY_CONDITION is used to specify boundary
+conditions. This is done in the same way as a domain is defined.
+For each boundary segment there must be a corresponding boundary
+condition function that specifies the boundary conditions along that
+segment. The same parametrization is used for the boundary segment function
+and the boundary condition function. The BOUNDARY_CONDITION data structure
+stores a pointer to that function and some additional information.
+
+. v - A BOUNDARY_CONDITION is an environment variable which is stored
+in the directory given by the corresponding PROBLEM object. v stores
+also the name of the boundary condition.
+
+. id - Number of the corresponding boundary segment. Boundary segments
+and boundary conditions with the same id are accessible via a BNDSEGDESC
+structure.
+
+. BndCond - Pointer to a function of type BndCondProcPtr defining the
+boundary condition for a segment.
+
+. data - user definable pointer that is passed as first argument to BndCond
+when it is called.
+
+MACROS:
+
+The components of the BOUNDARY_CONDITION structure are only accessible
+through the BNDSEGDESC structure during computations. See the MACROS
+section there.
+
+EXAMPLES:
+
+For detailed examples see the appl2d and appl3d description.
+
+\sa
+PROBLEM.
+
+D*/
+
+/*! \struct format
+
+ * \brief Data type that describes parameters of the UG data structure
+
+The FORMAT data type is used to describe parameters of the UG data structure.
+Several different formats can be defined at initialization time or later. Which format
+is used for a MULTIGRID can be specified when it is created or loaded from
+file. Each problem class defines at least one format. FORMAT objects
+are created with the CreateFormat() function.
+
+. d - The format is an environment directory. This directory will contain a list
+of SYMBOL objects. d also stores the name of the format.
+
+. sVertex - Size of user data space in each VERTEX in bytes.
+
+. sMultiGrid - Size of user data space in the MULTIGRID structure in bytes.
+
+. VectorSizes - Array giving the number of DOUBLE values to be allocated
+for the VECTOR per geometrical object. The number of DOUBLEs can be different
+in nodes, edges, sides and elements. VectorSizes[NODEVECTOR] specifies
+the number of DOUBLEs in a node of the grid. EDGEVECTOR, SIDEVECTOR
+and ELEMVECTOR are used for the other geometric objects. If a number of DOUBLEs
+is requested in a vector of a geometric object that is not allowed
+to have degrees of freedom (determined by ug.conf file during
+compilation - see makefiles) an error is returned by the CreateFormat function.
+
+. MatrixSizes - Array determining the number of DOUBLE values in a MATRIX 
+coupling of one VECTOR with another. Since the number of degrees
+of freedom in a VECTOR depends on the geometrical object its is associated with -
+in other words the VTYPE - the MATRIX
+size depends on the type of source and destination VECTOR. The memory requirements
+are assumed to be symmetric, that is a MATRIX from a node vector to an edge
+vector needs the same memory as that from an edge vector to a node vector.
+Therefore in 2D there are 3 vector types and 6 different matrix sizes and
+in 3D there are 4 vector types and 10 different matrix sizes.
+A mapping of  source and destination vector type to an index in the MatrixSizes
+array is provided by the array MatrixType exported by algebra.h.
+E. g. MatrixType[NODEVECTOR][EDGEVECTOR] provides the index for node-edge
+matrices.
+
+. ConnectionDepth - Consider an element `e` of a mesh (in 2D or 3D). All neighbors of that
+element are said to have distance 1 from `e` and these elements form a set called E(`e`,1).
+All elements having distance 1 from any element in E(`e`,1) form the set E(`e`,2). Consequently
+the set containing only the element `e` is called E(`e`,0). Therefore it makes sense
+to call E(`e`,d) the `set of elements having distance d from e`.
+UG generates the MATRIX objects automatically from the mesh by coupling all
+degrees of freedom in `e` with those of all elements up to distance `d` from `e`.
+The distance `d` depends again on the position of source and destination vector as
+in the MatrixSize component.
+
+. MaxConnectionDepth,NeighborhoodDepth - These numbers are computed internally
+and need not be specified nor are they useful from outside.
+
+. PrintVertex, PrintGrid, PrintMultigrid - Pointers to functions of type
+ConversionProcPtr. These functions can be specified by the user in order to
+print the contents of the user data fields in vertices, grids and multigrids.
+
+. PrintVector - is used to print user data in vectors. There may be different
+print functions for each vector position.
+
+. PrintMatrix -  is used to print user data in matrices. There may be different
+print functions according to the type of source and destination vector.
+There may be different
+print functions according to the type of source and destination vector but on and the same
+print function is used for both a->b and b->a.
+
+. ConversionProcPtr - Data type for the print functions. First parameter
+is a pointer to the user data space (this must be casted appropriately).
+Second parameter is a character string containing a number of
+spaces that can be used to indent the user output if it is to contain several
+lines. The third parameter is a character array where the output should be placed.
+
+MACROS:
+
+The fields of this data structure are accessed only internally. The user
+creates these data structures at initialization time with the function
+CreateFormat.
+
+EXAMPLES:
+
+The following example defines a format where degrees of freedom are in the
+nodes of the mesh and and all nodes within on element are coupled.
+This format is suitable for standard conforming (bi-)linear basis
+functions.
+
+First we define DOUBLE arrays with four and two entries which
+will be allocated in each NODE and MATRIX respectively, i.e.
+we can represent four finite element functions and we store
+two global stiffness matrices.
+
+\verbatim
+// define data types in order to determine size in bytes
+typedef DOUBLE FullScalarNodeData[4];
+typedef DOUBLE FullScalarLinkData[2];
+\endverbatim
+
+The following two functions of type ConversionProcPtr are used
+to print the contents of a VECTOR and a MATRIX on the screen.
+
+\verbatim
+// the print functions
+static INT PrintFullScalarNodeData (void *data, const char *indent, char *s)
+{
+    DOUBLE *vector;
+   
+    vector = (DOUBLE *) data;
+    sprintf(s,"  x=%11.4E   b=%11.4E   v=%11.4E  t=%11.4E",
+              (double)vector[0],(double)vector[1],(double)vector[2],(double)vector[3]);
+    return(0);
+}
+
+static INT PrintFullScalarLinkData (void *data, const char *indent, char *s)
+{
+    DOUBLE *vector;
+
+    vector = (DOUBLE *) data;
+    sprintf(s,"  A=%11.4E  LU=%11.4E",(double)vector[0],(double)vector[1]);
+    return(0);
+}
+\endverbatim
+
+Fortunately creating a format is simplified by the two data structures
+VectorDescriptor and MatrixDescriptor which are explained in the page
+for CreateFormat.  The following function InitFullScalarFormat now
+creates a FORMAT object in UGs environment.
+
+\verbatim
+// now enrol the format description in ug
+INT InitFullScalarFormat (void)
+{
+    FORMAT *newFormat;
+    VectorDescriptor vd[MAXVECTORS];
+    MatrixDescriptor md[MAXMATRICES];
+    SHORT nComp[2], Comp[1];
+
+    // we need dofs only in nodes 
+    vd[0].pos   = NODEVECTOR;
+    vd[0].size  = sizeof(FullScalarNodeData);
+    vd[0].print = PrintFullScalarNodeData;
+
+    // and the following connection: node-node
+    md[0].from  = NODEVECTOR;
+    md[0].to    = NODEVECTOR;
+    md[0].size  = sizeof(FullScalarLinkData);
+    md[0].depth = 0; // only within one element !
+    md[0].print = PrintFullScalarLinkData;
+
+    // create format full scalar 
+    newFormat = CreateFormat("full scalar", // name of the format
+                   0,0,                     // no user data in vertex and multigrid 
+                   (ConversionProcPtr)NULL, // no print function for vertex data
+                   (ConversionProcPtr)NULL, // no print function for grid data
+                   (ConversionProcPtr)NULL, // no print function for multigrid data
+                   1,vd,                    // 1 entry in vd array
+                   1,md                     // 1 entry in md array
+    );
+    if (newFormat==NULL) return(__LINE__);
+
+    return(0);
+}
+\endverbatim
+
+@sa CreateFormat
+
+*/
+
+/*D
+VERTEX - Data type storing level-independent node information
+
+STRUCTURES:
+
+\verbatim
+struct ivertex {               // inner vertex structure                
+    
+    // variables 
+    unsigned INT control;      // object identification, various flags 
+    INT id;                    // unique id used for load/store        
+    DOUBLE x[DIM];              // vertex position                        
+    DOUBLE xi[DIM];             // local coordinates in father element    
+    
+    // pointers 
+    union vertex *pred,*succ;  // double linked list of vertices        
+    void *data;                // associated user data structure        
+    union element *father;     // father element                        
+    struct node *topnode;      // highest node where defect is valid    
+} ;
+
+struct bvertex {               // boundary vertex structure            
+    
+    // variables 
+    unsigned INT control;      // object identification, various flags 
+    INT id;                    // unique id used for load/store        
+    DOUBLE x[DIM];              // vertex position                        
+    DOUBLE xi[DIM];             // local coordinates in father element    
+    
+    // pointers 
+    union vertex *pred,*succ;  // double linked list of vertices        
+    void *data;                // associated user data structure        
+    union element *father;     // father element                        
+    struct node *topnode;      // highest node where defect is valid    
+    
+    struct vsegment *vseg;     // pointer to chain of segments         
+} ;
+
+union vertex {                 // only used to define pointer to vertex
+    struct ivertex iv;
+    struct bvertex bv;
+} ;
+
+typedef union vertex VERTEX;
+\endverbatim
+
+DESCRIPTION:
+
+The VERTEX structure stores the level independent information of
+a NODE. If several NODEs on different levels of the MULTIGRID structure
+are at the same position then they share a common VERTEX object.
+The VERTEX is a union of inner vertex ivertex and boundary vertex bvertex.
+The bvertex has all of the ivertex plus some extra information where
+the vertex is on the boundary of the domain. In the code one always works with
+pointers of type VERTEX * and accesses the components through the macros described
+below.
+
+. control - As in almost all UG objects this word is used bitwise for various
+purposes (see section below).
+
+. id - Each vertex is given a unique identification number at creation.
+
+. x - Vector with `global` coordinates.
+
+. xi - Vector with `local` coordinates. This is used to represent the multigrid
+hierarchy. The father component points to an ELEMENT of the next coarser
+grid level and xi gives the position of the VERTEX within this element in
+the local coordinate system of the ELEMENT. In this way also loosely coupled
+grids can be represented although the grid refinement algorithm is currently
+not able to produce such grids. The solvers however would work
+also on much more general multigrid hierarchies.
+
+. pred,succ - Pointers realizing a double linked list of VERTEX objects per level.
+The beginning of this list is in the GRID structure.
+
+. data - pointer to a data space of user definable size. The size is defined in
+the FORMAT definition.
+
+. father - Pointer to an ELEMENT of the next coarser level. This component is
+used for multigrid interpolation and restriction (see also xi component above).
+For the vertices in the coarsest grid (level 0) this pointer is NULL.
+
+. topnode - If several NODES share this VERTEX then this pointer refers
+to the NODE on the highest level. This pointer will probably `not` be supported
+in the next version, its use is not recommended!
+
+MACROS:
+
+\verbatim
+INT ID (VERTEX *p);
+\endverbatim
+Returns VERTEX id.
+
+\verbatim
+VERTEX *PREDV (VERTEX *p);
+VERTEX *SUCCV (VERTEX *p);
+\endverbatim
+Access to the double linked list. NULL pointers indicate the end of the list
+in both directions.
+
+\verbatim
+DOUBLE *CVECT (VERTEX *p);
+DOUBLE XC (VERTEX *p);
+DOUBLE YC (VERTEX *p);
+DOUBLE ZC (VERTEX *p);
+\endverbatim
+CVECT returns the array of global coordinates (i.e. a pointer) and XC, YC and
+ZC return the individual components. Accessing the `z`-coordinate in a 2D application
+will not lead to an error message!
+
+\verbatim
+DOUBLE *LCVECT (VERTEX *p);
+DOUBLE XI (VERTEX *p);
+DOUBLE ETA (VERTEX *p);
+DOUBLE NU (VERTEX *p);
+\endverbatim
+LCVECT returns the array of local coordinates with the father element and the other
+macros return the individual components called XI, ETA and NU.
+
+\verbatim
+void *VDATA (VERTEX *p);
+\endverbatim
+Returns the pointer to user data space.
+
+\verbatim
+ELEMENT *VFATHER (VERTEX *p);
+\endverbatim
+Returns the pointer an ELEMENT of the next coarser grid level containing the 
+given VERTEX. A NULL pointer indicates that the VERTEX is on level 0, the
+coarsest level.
+
+\verbatim
+NODE *TOPNODE (VERTEX *p);
+\endverbatim
+Returns pointer to the highest NODE using that VERTEX. The use of this
+component is not recommended since it will not be supported in the future.
+
+CONTROL WORDS:
+
+The first word of many UG data structure is used bitwise for various purposes.
+
+`General macros available for all objects`
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (VERTEX *p);                 27  5   Object type IVOBJ for inner   
+void SETOBJT (VERTEX *p, INT n);              and BVOBJ for boundary vertex
+
+INT USED (VERTEX *p);                 23  1   used only temporarily
+void SETUSED (VERTEX *p, INT n);
+
+INT TAG (VERTEX *p);                  24  3   available for user
+void SETTAG (VERTEX *p, INT n);
+
+INT LEVEL (VERTEX *p);                17  5   level on which vertex is
+void SETLEVEL (VERTEX *p, INT n);             defined
+
+INT THEFLAG (VERTEX *p);              16  1   used only temporarily
+void SETTHEFLAG (VERTEX *p, INT n);
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros specific to the VERTEX structure`
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT MOVE (VERTEX *p);                 4   2   Number of dimensions in which
+void SETMOVE (VERTEX *p, INT n);              a vertex can be moved:
+                                                0: vertices at corners
+                                                1: boundary vertex in 2D
+                                                2: inner in 2D, boundary in 3D
+                                                3: inner in 3D
+
+INT MOVED (VERTEX *p);                0   1   TRUE if vertex has been moved
+void SETMOVED (VERTEX *p, INT n);             away from initial position.
+
+INT ONEDGE (VERTEX *p);               1   3   Edge in father element of vertex
+void SETONEDGE (VERTEX *p, INT n);            on which this vertex resides.
+                                              2D: only valid for boundary vertex!
+-----------------------------------------------------------------------------
+\endverbatim
+D*/
+
+/*D
+NODE - Data type representing a node in the mesh
+
+STRUCTURES:
+\verbatim
+struct node {                   // level dependent part of a vertex     
+
+    // variables 
+    unsigned INT control;       // object identification, various flags 
+    INT id;                     // unique id used for load/store        
+    INT index;                  // discrete coordinates for ordering    
+
+    // pointers 
+    struct node *pred,*succ;    // double linked list of nodes per level
+    struct link *start;         // list of links                        
+    struct node *father;        // node on coarser level (NULL if none) 
+    struct node *son;           // node on finer level (NULL if none)   
+    union vertex *myvertex;     // corresponding vertex structure       
+    
+    // associated vector if 
+    VECTOR *vector;             // only allocated if there is data at nodes!                   
+
+} ;
+
+typedef struct node NODE;
+\endverbatim
+
+DESCRIPTION:
+
+Each node of the mesh is represented by a NODE structure. When a mesh is refined
+then new NODE objects are allocated on the new grid level
+even at those positions where nodes were already in the coarse mesh. However, NODEs
+at the same position share a common VERTEX structure.
+A node provides access to all neighboring nodes via the LINK structure. There
+is `no` access from a node to all the elements having the node as a corner!
+
+. control - As in almost all UG objects this word is used bitwise for various
+purposes.
+
+. id - Each node is assigned a unique identification number when it is created.
+
+. index - The index indicates the position of the node in the node list. 
+This component is provided mainly for compatibility reasons.
+
+. pred,succ - All nodes of one grid level are in a double linked list.
+
+. start - Points to the first element of the LINK list. The LINK list
+provides access to all neighbors of the node.
+
+. father,son - All nodes at the same position in the multigrid structure, i.e.
+sharing a common VERTEX are connected by a double linked list providing access to
+the node on the next coarser (father) and finer (son) grid levels.
+
+. myvertex - Pointer to the VERTEX associated with the node.
+
+. vector - Pointer to a VECTOR containing degrees of freedom associated with the node.
+
+MACROS:
+
+\verbatim
+NODE *PREDN (NODE *p);
+NODE *SUCCN (NODE *p);
+\endverbatim
+
+Provides acces to the double linked list of nodes per level.
+
+\verbatim
+INT INDEX (NODE *p);
+\endverbatim
+
+Returns the index of the node in the node list.
+
+\verbatim
+LINK *START (NODE *p);
+\endverbatim
+
+Returns pointer to the first element of the LINK list of a node.
+
+\verbatim
+NODE *NFATHER (NODE *p);
+NODE *SONNODE (NODE *p);
+\endverbatim
+
+\verbatim
+VERTEX *MYVERTEX (NODE *p);
+\endverbatim
+
+Returns a pointer to the VERTEX of a node.
+
+\verbatim
+VECTOR *NVECTOR (NODE *p);
+\endverbatim
+
+Returns a pointer to the VECTOR associated with a node.
+
+CONTROL WORDS:
+
+`General macros available for all objects`
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (NODE *p);                   27  5   Object type NDOBJ for a node. 
+void SETOBJT (NODE *p, INT n); 
+
+INT USED (NODE *p);                   23  1   used only temporarily
+void SETUSED (NODE *p, INT n);
+
+INT TAG (NODE *p);                    24  3   available for user
+void SETTAG (NODE *p, INT n);
+
+INT LEVEL (NODE *p);                  17  5   level on which node is
+void SETLEVEL (NODE *p, INT n);               allocated
+
+INT THEFLAG (NODE *p);                16  1   used only temporarily
+void SETTHEFLAG (NODE *p, INT n);
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the NODE structure`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT CLASS (NODE *p);                  0   3   node class for local multigrid
+void SETCLASS (NODE *p, INT n);               only for backward compatibility
+
+INT NCLASS (NODE *p);                 3   3   node class for node on next level
+void SETNCLASS (NODE *p, INT n);              only for backward compatibility
+
+INT MODIFIED (NODE *p);               6   1   is true when node has been created
+void SETMODIFIED (NODE *p, INT n);            or modified during last refinement 
+                                              step. This in 2D only !
+
+INT NPROP (NODE *p);                  7   8   node property derived from
+void SETNPROP (NODE *p, INT n);               element property.
+-----------------------------------------------------------------------------
+\endverbatim
+
+\sa
+
+VERTEX, LINK, VECTOR, GRID.
+
+D*/
+
+/*D
+LINK - Data type realizing a list of neighbors of a node
+
+STRUCTURES:
+
+\verbatim
+struct link {
+
+    // variables 
+    unsigned INT control;       // object identification, various flags 
+    struct link *next;          // ptr to next link                     
+    struct node *nbnode;        // ptr to neighbor node                 
+} ;
+
+typedef struct link LINK;
+\endverbatim
+
+DESCRIPTION:
+
+The LINK structures form a single linked list starting in each NODE.
+Two nodes are said to be neighbors if they are connected by an edge `in the mesh`.
+Note that this is only the geometric neighborship, which can be different from the
+algebraic neighborship derived from the non-zero structure of the global stiffness matrix.
+Each LINK provides a pointer to one neighbor of the NODE where the list
+starts. The neighbor relationship is symmetric, therefore if node `a` is a neighbor
+of node `b` then `a` occurs in the list of `b` and vice versa. These two link structures
+are then combined in an EDGE structure.
+
+. control - As in almost all UG objects this word is used bitwise for various
+purposes.
+
+. next - pointer to next LINK object.
+
+. nbnode - Pointer to neighboring node.
+
+MACROS:
+
+\verbatim
+NODE *NBNODE (LINK *p);
+\endverbatim 
+
+Returns pointer to a neighboring node that is stored in the LINK.
+
+\verbatim
+LINK *NEXT (LINK *p);
+\endverbatim
+
+Returns pointer to next LINK in the list. As usual a NULL pointer indicates
+the end of the list.
+
+\verbatim
+EDGE *MYEDGE (LINK *p);
+\endverbatim
+
+Provides access to the EDGE where this given LINK is part of. 
+
+\verbatim
+LINK *REVERSE (LINK *p);
+\endverbatim
+
+Macro that provides fast access to the LINK in the reverse direction.
+If the given LINK connects node `a` with node `b`, then REVERSE
+provides the LINK in the list of node `b` pointing to `a`.
+
+CONTROL WORDS:
+
+`General macros available for all objects`
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (LINK *p);                   27  5   Object type EDOBJ for first 
+void SETOBJT (LINK *p, INT n);                LINK of an EDGE
+
+INT USED (LINK *p);                   23  1   used only temporarily
+void SETUSED (LINK *p, INT n);
+
+INT THEFLAG (LINK *p);                16  1   used only temporarily
+void SETTHEFLAG (LINK *p, INT n);
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the LINK structure`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT LOFFSET (LINK *p);                0   1   0 if first LINK of EDGE
+void SETLOFFSET (LINK *p, INT n);             1 if second LINK of EDGE
+-----------------------------------------------------------------------------
+\endverbatim
+
+\sa
+
+EDGE, NODE.
+
+D*/
+
+/*D
+EDGE - Data type realizing an undirected connection of two nodes
+
+STRUCTURES:
+
+\verbatim
+struct edge {                   // undirected edge of the grid graph    
+
+    // variables 
+    struct link links[2];       // two links                            
+    
+    // associated vector if 
+    VECTOR *vector;             // this pointer is only there if there is edge data                    
+} ;
+
+typedef struct edge EDGE;
+\endverbatim
+
+DESCRIPTION:
+
+The EDGE data type combines LINK structures to form an `undirected`
+connection of two NODEs. An EDGE represents an edge of the mesh.
+Degrees of freedom can be associated with EDGEs as it is necessary in
+quadratic, non-conforming or mixed finite elements.
+
+. links - Array of two LINKs. In that way LINKs are always allocated pairwise
+and in consecutive memory locations. This allows to switch easily from a given
+LINK to the LINK in reverse direction or to the EDGE.
+
+. midnode - In 3D a pointer to the node created on the midpoint of an edge is
+needed during refinement (This is because many elements share an edge in 3D).
+
+. vector - Pointer to a VECTOR structure of appropriate size declared in the
+FORMAT.
+
+MACROS:
+
+\verbatim
+LINK *LINK0 (EDGE *p);
+\endverbatim
+
+Pointer to first LINK of an EDGE.
+
+\verbatim
+LINK *LINK1 (EDGE *p);
+\endverbatim
+
+Pointer to second LINK of an EDGE.
+
+\verbatim
+NODE *MIDNODE (EDGE *p);
+\endverbatim
+
+Returns pointer to midnode (a node on the next finer grid level
+that has been created on the given edge).
+
+\verbatim
+VECTOR *EDVECTOR (EDGE *p);
+\endverbatim
+
+Returns pointer to the VECTOR associated with the given EDGE.
+
+CONTROL WORDS:
+
+`General macros available for all objects`
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (EDGE *p);                   27  5   Object type EDOBJ for an edge
+void SETOBJT (EDGE *p, INT n); 
+
+INT USED (EDGE *p);                   23  1   used only temporarily
+void SETUSED (EDGE *p, INT n);
+
+INT LEVEL (EDGE *p);                  17  5   level on which edge is
+void SETLEVEL (EDGE *p, INT n);               allocated
+
+INT THEFLAG (EDGE *p);                16  1   used only temporarily
+void SETTHEFLAG (EDGE *p, INT n);
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the EDGE structure`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT EOFFSET (EDGE *p);                0   1   Overlay with bit from LINK
+void SETEOFFSET (EDGE *p, INT n); 
+
+INT EXTRA (EDGE *p);                  1   1   True if additional edge is
+void SETEXTRA (EDGE *p, INT n);               diagonal of quadrilateral. This is
+                                              provided for backward compatibility
+
+INT NO_OF_ELEM (EDGE *p);             2   7   Number of elements sharing the
+void SET_NO_OF_ELEM (EDGE *p, INT n);         given edge. This is provided
+void INC_NO_OF_ELEM (EDGE *p);                only in 3D version
+void DEC_NO_OF_ELEM (EDGE *p); 
+
+INT EDGENEW (EDGE *p);                16  1   True if edge has been created in
+void SETEDGENEW (EDGE *p, INT n);             last refinement step. 3D only!
+-----------------------------------------------------------------------------
+\endverbatim
+
+\sa
+
+LINK
+
+D*/
+
+
+/*! \struct element
+
+ \brief Data type representing an element in the mesh
+
+STRUCTURES:
+
+\verbatim
+struct generic_element {            // no difference between inner and bndel
+
+    // variables 
+    unsigned INT control;           // object identification, various flags 
+    INT id;                         // unique id used for load/store        
+    unsigned INT  flag;             // additional flags for elements        
+    unsigned INT  property;         // we need more bits ...                
+    
+    // pointers 
+	union element *pred, *succ;     // double linked list of elements
+    void *refs[1];                  // variable length array managed by ug  
+} ;
+
+struct triangle {
+
+    // variables 
+    unsigned INT control;           // object identification, various flags 
+    INT id;                         // unique id used for load/store        
+    unsigned INT  flag;             // additional flags for elements        
+    unsigned INT  property;         // we need more bits ...                
+    
+    // pointers 
+    union element *pred, *succ;     // double linked list of elements       
+    struct node *n[3];              // corners of that element              
+    union element *father;          // father element on coarser grid       
+    union element *sons[4];         // element tree                         
+    union element *nb[3];           // dual graph                           
+    
+    // associated vector if 
+    VECTOR *vector;                 // only allocated if there is element data                  
+
+    struct elementside *side[3];    // only on bnd, NULL if interior side   
+} ;
+
+struct quadrilateral {
+
+    // variables 
+    unsigned INT control;           // object identification, various flags 
+    INT id;                         // unique id used for load/store        
+    unsigned INT  flag;             // additional flags for elements        
+    unsigned INT  property;         // we need more bits ...                
+    
+    // pointers 
+    union element *pred, *succ;     // double linked list of elements       
+    struct node *n[4];              // corners of that element              
+    union element *father;          // father element on coarser grid       
+    union element *sons[4];         // element tree                         
+    union element *nb[4];           // dual graph                           
+    
+    // associated vector if 
+    VECTOR *vector;                 // only allocated if there is element data                 
+ 
+    struct elementside *side[4];    // only on bnd, NULL if interior side   
+} ;
+
+struct tetrahedron {
+
+    // variables 
+    unsigned INT control;           // object identification, various flags 
+    INT id;                         // unique id used for load/store        
+    unsigned INT  flag;             // additional flags for elements        
+    unsigned INT  property;         // we need more bits ...                
+    
+    // pointers 
+    union element *pred, *succ;     // double linked list of elements       
+    struct node *n[4];              // corners of that element              
+    union element *father;          // father element on coarser grid       
+    union element *sons[1];         // element tree                         
+    union element *nb[4];           // dual graph                           
+    
+    // associated vector if 
+    VECTOR *vector;                 // only allocated if there is element data                
+
+    // associated vector if 
+    VECTOR *sidevector[4];          // only allocated if there is side data        
+
+    struct elementside *side[4];    // only on bnd, NULL if interior side   
+} ;
+
+union element {
+    struct generic_element ge;
+    struct triangle        tr;
+    struct quadrilateral   qu;
+    struct tetrahedron     te;
+} ;
+
+typedef union element ELEMENT;
+\endverbatim
+
+DESCRIPTION:
+
+UG provides a flexible element concept, i.e. there may be different
+types of elements in a mesh (currently limited to 8). All element types are derived
+from the generic_element where the refs array is allocated to the
+appropriate length. Data types for the currently implemented three different
+elements triangle, quadrilateral and tetrahedron are provided only
+for illustration and debugging purposes. Internally only the generic_element
+is used. The TAG field in the control word is used to identify the
+element type at run-time, therefore the limitation to eight element types.
+Memory requirements are also higher for elements having at least one
+side on the boundary because additional pointers to boundary information
+is stored.
+In 3D, degrees of freedom can be associated also with the sides of an element.
+Since there is no data type to represent sides, the degrees of freedom associated
+with a side of an element are accessed via the element (a side is shared by exactly
+two elements, UG ensures the consistency of the pointers).
+
+. control - As in almost all UG objects this word is used bitwise for various
+purposes.
+
+. id - Each element has a unique id.
+
+. flag - A lot of information requiring only a small number of bits must be stored
+for each element. Therefore a second control word, the flag, has been introduced.
+The flag is also used bitwise.
+
+. property - Since control and flag were full, a third word had to be introduced that
+can be used bitwise. A part of this word stores the element property, which is simple
+a number per element. This number can be used to distinguish different materials
+for example.
+
+. pred,succ - All elements of a grid level are connected by a double linked list.
+
+. n - Array of pointers to the corner NODEs of an element.
+
+. father - Pointer to element on the next coarser grid level that created 
+the given element during refinement.
+
+. sons - Array of pointers to elements on the next finer grid level that
+have been created by refining the given element. In 2D all sons
+are directly accessible, in 3D only one pointer is stored and a complete
+list of sons is constructed by the function GetSons.
+
+. nb - Array of pointers to neighboring elements. There are as many neighbors
+as the element has sides.
+
+. vector - Pointer to VECTOR that is associated with the element. Whether degrees
+of freedom are allowed to be associated with elements is determined at compile-time
+through appropriate makefile switches.
+
+. sidevector - Array of pointers to VECTORs associated with the sides of an element.
+This option is available only in 3D. Whether VECTORs are allowed in sides is determined
+through switches in the makefiles at compile-time.
+
+MACROS:
+
+\verbatim
+INT SIDES_OF_ELEM (ELEMENT *p);
+\endverbatim
+
+Returns the number of sides of a given element. In 2D the number of sides and number
+of edges of an element coincide. The nb, sidevector and side
+arrays are of this size.
+
+\verbatim
+INT EDGES_OF_ELEM (ELEMENT *p);
+\endverbatim
+
+Returns the number of edges of a given element. In 2D the number of sides and number
+of edges of an element coincide.
+
+\verbatim
+INT CORNERS_OF_ELEM (ELEMENT *p);
+\endverbatim
+
+Returns the number of corners of a given element. This is also the size of the n
+array.
+
+\verbatim
+INT SONS_OF_ELEM (ELEMENT *p);
+\endverbatim
+
+Returns the maximum number of sons possible for a given element. This is the
+size of the sons array in 2D. The actual number of sons depends on the refinement
+rule that has been applied to the element and is given by the NSONS macro
+(see CONTROL WORDS section below).
+
+\verbatim
+INT EDGES_OF_SIDE (ELEMENT *p,INT i);
+\endverbatim
+
+Returns the number of edges of side i of the given element. In 2D a side has always one
+edge since edges and sides coincide.
+
+\verbatim
+INT CORNERS_OF_SIDE (ELEMENT *p,INT i);
+\endverbatim
+
+Returns the number of corners of side i of the given element.
+
+\verbatim
+#define CORNERS_OF_EDGE 2
+\endverbatim
+
+This definition is provided only to make the description complete.
+
+`The following macros determine the numbering scheme of an element. In each
+element type the corners, edges and sides are numbered beginning with zero.
+Each side again has a local numbering of its edges and corners and each edge
+has a local numbering of its corners. We then need mappings of the numbering
+scheme within edges and sides to the numbering scheme within the element.`
+
+\verbatim
+INT EDGE_OF_SIDE (ELEMENT *p,INT s,INT e);
+\endverbatim
+
+Returns the number of edge e of side s within the element p.
+
+\verbatim
+INT CORNER_OF_SIDE (ELEMENT *p,INT s,INT c);
+\endverbatim
+
+Returns the number of corner c of side s within the element p.
+
+\verbatim
+INT CORNER_OF_EDGE (ELEMENT *p,INT e,INT c);
+\endverbatim
+
+Returns the number of corner c of edge e within the element p.
+
+\verbatim
+INT EDGE_WITH_CORNERS (ELEMENT *p,INT c0,INT c1);
+\endverbatim
+
+Returns the number of the edge (with respect to numbering in the element p)
+that connects corners with numbers c0 and c1 (with respect to numbering in
+element p).
+
+\verbatim
+INT SIDE_WITH_EDGE (ELEMENT *p,INT e,INT k);
+\endverbatim
+
+SIDE_WITH_EDGE(p,e,0) and SIDE_WITH_EDGE(p,e,1) delivers the numbers
+of the two sides (with respect to numbering in p) that share edge number e
+(also with respect to the element).
+
+\verbatim
+INT CORNER_OF_SIDE_INV (ELEMENT *p,INT s,INT c);
+\endverbatim
+
+When c is the number of a corner and s is the number of a side
+(both with respect to numbering in the element) then 
+CORNER_OF_SIDE_INV returns the number of corner c with respect
+to the numbering in side s or -1 if s does not contain corner c.
+
+\verbatim
+INT EDGES_OF_CORNER (ELEMENT *p,INT c,INT k);
+\endverbatim
+
+If c is the number of a corner with respect to numbering within
+the element then EDGES_OF_CORNER(p,c,k) returns all numbers
+of edges (with respect to p) that are connected to corner c.
+Since this number is variable a value of -1 identifies an invalid entry.
+The edges are numbered consecutively, i.e. if a -1 is encountered
+larger values of k (less than EDGES_OF_ELEM(p)) will lead also to -1).
+
+\verbatim
+INT SUCCE (ELEMENT *p);
+INT PREDE (ELEMENT *p);
+\endverbatim
+
+Return pointers to next and previous element of the double linked list of elements per level.
+
+\verbatim
+NODE *CORNER (ELEMENT *p,INT i);
+\endverbatim
+
+Returns a pointer to corner i of element p. i should be less than
+CORNERS_OF_ELEM(p).
+
+\verbatim
+ELEMENT *EFATHER (ELEMENT *p);
+\endverbatim
+
+Returns a pointer to the father element.
+
+\verbatim
+ELEMENT *SON (ELEMENT *p,INT i);
+\endverbatim
+
+Returns a pointer to son i of p in the element hierarchy. In 3D only i=0 is
+allowed and the function GetSons should be used instead. i should be
+smaller than NSONS(p).
+
+\verbatim
+ELEMENT *NBELEM (ELEMENT *p,INT i);
+\endverbatim
+
+Returns a pointer to neighboring element over side i. i should be less
+than SIDES_OF_ELEM(p).
+
+\verbatim
+VECTOR *EVECTOR (ELEMENT *p);
+\endverbatim
+
+Returns a pointer to the VECTOR associated with the element. This
+pointer is only available if the appropriate switches in the makefiles
+have been set for element vectors.
+
+\verbatim
+VECTOR *SVECTOR (ELEMENT *p,INT i);
+\endverbatim
+
+Returns a pointer to the VECTOR associated with the side i
+of element p. i must be less than SIDES_OF_ELEM(p). This
+pointer is only available if the appropriate switches in the makefiles
+have been set for side vectors.
+
+
+CONTROL WORDS:
+
+`General macros available for all objects`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (ELEMENT *p);                27  5   Object type BEOBJ for an element
+void SETOBJT (ELEMENT *p, INT n);             with at least one side on a
+                                              boundary and IEOBJ else
+
+INT USED (ELEMENT *p);                23  1   used only temporarily
+void SETUSED (ELEMENT *p, INT n);
+
+INT TAG (ELEMENT *p);                 24  3   identifies element type. E.g.
+void SETTAG (ELEMENT *p, INT n);              3=triangle, 4=quadrilateral.
+                                              should not be used anymore!
+
+INT LEVEL (ELEMENT *p);               17  5   level on which element is
+void SETLEVEL (ELEMENT *p, INT n);            allocated
+
+INT THEFLAG (ELEMENT *p);             16  1   True if elements refinement rule
+void SETTHEFLAG (ELEMENT *p, INT n);          changed during last refinement
+                                              step. 3D only !
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the ELEMENT structure in control`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT ECLASS (ELEMENT *p);              8   2   stores element class which is 
+void SETECLASS (ELEMENT *p,INT n);            out of COPY_CLASS, 
+                                              IRREGULAR_CLASS or REGULAR_CLASS
+
+INT NSONS (ELEMENT *p);               10  4   number of sons of an element.
+void SETNSONS (ELEMENT *p,INT n);
+
+INT NEWEL (ELEMENT *p);               14  1   Set at creation time but never
+void SETNEWEL (ELEMENT *p,INT n);             reset. Do not use it!
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the ELEMENT structure in flag are all for internal use only`
+
+
+
+`Macros for the ELEMENT structure in property`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT PROP (ELEMENT *p);                0   32  Stores element property number.
+void SETPROP (ELEMENT *p,INT n);
+-----------------------------------------------------------------------------
+\endverbatim
+
+\sa
+
+ELEMENT SIDE, NODE, VECTOR.
+
+*/
+
+/*! \struct vector
+
+ \brief Data type for unknowns in sparse matrix structure
+
+
+The VECTOR data type is part of the sparse matrix vector data structure.
+A VECTOR stores a user definable number of DOUBLE values (see FORMAT) and
+is associated with a geometric object of the mesh (nodes, edges, sides and elements).
+The size of the VECTOR can be specified differently for each type of
+geometric object, but not (yet) for each individual VECTOR object.
+Since there are four different geometric objects that can have degrees
+of freedom, there are four different `vector types`. The vector type
+is stored in the control word (see VTYPE macro) and can have the
+following values
+
+\verbatim
+    NODEVECTOR 
+    EDGEVECTOR 
+    SIDEVECTOR
+    ELEMVECTOR
+\endverbatim
+
+The VECTOR provides access to the rows of the sparse matrix belonging to
+all degrees of freedom stored in the vector.
+
+. control - Used bitwise (see below).
+
+. object - Pointer to the geometric object associated with the vector.
+
+. pred,succ - Realizes double linked list.
+
+. index - Reflects position of the VECTOR in the double linked list.
+
+. skip - Used bitwise to identify components of a VECTOR that have Dirichlet boundary 
+conditions. These components have to be treated differently in some parts of the solver.
+
+. start - Points to first element of the MATRIX list of a VECTOR. This
+list represents the rows of the matrix belonging to degrees of freedom in
+the given VECTOR.
+
+. value - Array of double values. This array is allocated dynamically with the
+size specified in the FORMAT structure.
+
+MACROS:
+
+\verbatim
+void *VOBJECT (VECTOR *v);
+\endverbatim
+
+Returns a pointer to the object to which the VECTOR belongs.
+
+\verbatim
+VECTOR *PREDVC (VECTOR *v);
+VECTOR *SUCCVC (VECTOR *v);
+\endverbatim
+
+Access to next and previous VECTOR in the double linked list.
+
+\verbatim
+INT VINDEX (VECTOR *v);
+\endverbatim
+
+Position of the VECTOR in the doubl linked list. This is useful for
+the implementation of some iterative schemes.
+
+\verbatim
+INT VSKIPME (VECTOR *v,INT n);
+INT VVECSKIP (VECTOR *v,INT n);
+INT VFULLSKIP (VECTOR *v,INT n);
+void SETVSKIPME (VECTOR *v,INT n);
+INT VECSKIP (VECTOR *v);
+INT VECSKIPBIT (VECTOR *v,INT n);
+void SETVECSKIPBIT (VECTOR *v,INT n);
+\endverbatim
+
+????
+Macros to modify the skip flags. VECSKIP returns value of the skip word. Since it is
+a macro it can also be used for assigning a value to the skip word, e.g.
+VECSKIP(v)=0 will reset all bits in the skip word. VECSKIPBIT returns true
+if the n th bit of the skip word is set. SETVECSKIPBIT sets the nth
+bit of the skip word to 1.
+
+\verbatim
+MATRIX *VSTART (VECTOR *v);
+\endverbatim
+
+Returns a pointer to the first element of the MATRIX list. The first
+MATRIX in the list is the diagonal matrix block coupling degrees
+of freedom in v with itself.
+
+\verbatim
+DOUBLE VVALUE (VECTOR *v,INT n);
+\endverbatim
+
+VVALUE returns the nth component of the value field. VVALUE is a macro and can
+also be used for assignment, i.e. VVALUE(v,1)=0.0 is a valid statement.
+
+\verbatim
+DOUBLE *VVALUEPTR (VECTOR *v,INT n);
+\endverbatim
+
+Returns a pointer to the nth component of the value array.
+
+\verbatim
+NODE *VMYNODE (VECTOR *v);
+EDGE *VMYEDGE (VECTOR *v);
+ELEMENT *VMYELEMENT (VECTOR *v);
+\endverbatim
+
+These macros return pointers the objects the vector belongs to with
+appropriate type casts.
+
+\verbatim
+INT VUP(VECTOR *p);
+void SETVUP(VECTOR *p,INT n);
+INT VDOWN(VECTOR *p);
+void SETVDOWN(VECTOR *p,INT n);
+\endverbatim
+
+????
+
+CONTROL WORDS:
+
+`General macros in control word`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (VECTOR *p);                 27  5   Object type VEOBJ 
+void SETOBJT (VECTOR *p, INT n);              
+
+INT USED (VECTOR *p);                 23  1   used only temporarily
+void SETUSED (VECTOR *p, INT n);
+
+INT TAG (VECTOR *p);                  24  3   not used
+void SETTAG (VECTOR *p, INT n);            
+
+INT THEFLAG (VECTOR *p);              16  1   used only temporarily
+void SETTHEFLAG (VECTOR *p, INT n);        
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the VECTOR structure in control`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+VTYPE (VECTOR *v);                    0   2   Type of geometric object the
+SETVTYPE (VECTOR *v, INT n);                  vector belongs to. Values:
+                                              NODEVECTOR, EDGEVECTOR, SIDEVECTOR
+                                              or ELEMVECTOR.
+
+VCUSED (VECTOR *v);                   4   1   For internal use in ordering
+SETVCUSED (VECTOR *v, INT n);                 routines.
+
+VCOUNT (VECTOR *v);                   5   2   internal use
+SETVCOUNT (VECTOR *v, INT n);
+
+VECTORSIDE (VECTOR *v);               7   2   Side in VOBJECT where VECTOR
+SETVECTORSIDE (VECTOR *v, INT n);             belongs to (SIDEVECTOR only)
+
+VCLASS (VECTOR *v);                   11  2   Vector class for local multigrid
+SETVCLASS (VECTOR *v, INT n);                 between 0 and 3.
+
+VDATATYPE (VECTOR *v);                13  4   This is 2^VTYPE(v)
+SETVDATATYPE (VECTOR *v, INT n);  
+
+VNCLASS (VECTOR *v);                  17  2   Vector class of vector at same
+SETVNCLASS (VECTOR *v, INT n);                position on finer level
+
+VNEW (VECTOR *v);                     19  1   True if VECTOR has been created
+SETVNEW (VECTOR *v, INT n);                   in last refinement step.
+
+VCNEW (VECTOR *v);                    20  1   True if VECTOR got a new 
+SETVCNEW (VECTOR *v, INT n);                  connection in refinement
+-----------------------------------------------------------------------------
+\endverbatim
+
+\sa MATRIX, NODE, EDGE, ELEMENT.
+
+*/
+
+/*! \struct matrix
+ \brief Data type realizing sparse matrix structure
+
+The MATRIX data type is part of UGs sparse matrix vector data structure.
+A MATRIX stores all the matrix entries coupling two VECTORs (which can be identical - this
+is the case for diagonal entries).
+The number of entries in a MATRIX depends on the geometrical position
+of the source and destination VECTOR, i.e. a MATRIX coupling
+a VECTOR in NODE with a VECTOR in another NODE can have a different
+size than a MATRIX coupling a VECTOR in a NODE with a
+VECTOR in an EDGE.
+The MATRIX structure forms a single linked list that contains all
+couplings of the VECTOR where the list starts (see the VSTART macro
+there). The list `always` starts with the diagonal element.
+Except for diagonal MATRIX entries two MATRIX objects are combined to
+build a CONNECTION object.
+
+MACROS:
+
+\verbatim
+MATRIX *MINC (MATRIX *m);
+\endverbatim
+
+Adds sizeof(MATRIX) to m (of course the dynamic size of m).
+
+\verbatim
+MATRIX *MDEC (MATRIX *m);
+\endverbatim
+
+Subtracts sizeof(MATRIX) to m (of course the dynamic size of m).
+
+\verbatim
+MATRIX *MNEXT (MATRIX *m);
+\endverbatim
+
+Returns pointer to next MATRIX in the list.
+
+\verbatim
+VECTOR *MDEST (MATRIX *m);
+\endverbatim
+
+Returns pointer to destination VECTOR, i.e. the column VECTOR. If m is an element
+of the MATRIX list of some VECTOR `a` and MDEST(m)=`b`, then m contains
+all the matrix entries of rows belonging `a` and columns belonging to `b`.
+ 
+\verbatim
+MATRIX *MADJ (MATRIX *m);
+\endverbatim
+
+Returns a pointer to the transposed MATRIX, i.e. if m couples VECTOR
+`a` with VECTOR `b`, then MADJ(m) couples `b` with `a`.
+
+\verbatim
+CONNECTION *MMYCON (MATRIX *m);
+\endverbatim
+
+Returns a pointer to the CONNECTION where m is part of.
+
+\verbatim
+DOUBLE MVALUE (MATRIX *m,INT n);
+\endverbatim
+
+Returns the nth value of the MATRIX m. The number of entries is
+defined in the FORMAT structure. MVALUE is a macro and can also
+be used for assignment, i.e. MVALUE(m,n)=0.0 is a valid
+statement.
+
+\verbatim
+DOUBLE *MVALUEPTR (MATRIX *m,INT n);
+\endverbatim
+
+Returns a pointer to the nth entry of the MATRIX m.
+
+\verbatim
+MDESTINDEX (MATRIX *m);
+\endverbatim
+
+Returns the index component of the destination VECTOR.
+
+
+CONTROL WORDS:
+
+`General macros in control word`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+INT OBJT (MATRIX *p);                 27  5   Object type MAOBJ 
+void SETOBJT (MATRIX *p, INT n);              
+
+INT USED (MATRIX *p);                 23  1   used only temporarily
+void SETUSED (MATRIX *p, INT n);
+
+INT TAG (MATRIX *p);                  24  3   not used
+void SETTAG (MATRIX *p, INT n);            
+
+INT THEFLAG (MATRIX *p);              16  1   used only temporarily
+void SETTHEFLAG (MATRIX *p, INT n);        
+-----------------------------------------------------------------------------
+\endverbatim
+
+`Macros for the MATRIX structure in control`
+
+\verbatim
+Macro name                            Pos Len Purpose
+-----------------------------------------------------------------------------
+MOFFSET (MATRIX *p);                  0   1   Position of MATRIX in
+SETMOFFSET (MATRIX *p,INT n);                 CONNECTION (0 or 1)
+
+MROOTTYPE (MATRIX *p);                1   2   Position of source
+SETMROOTTYPE (MATRIX *p,INT n);               VECTOR
+
+MDESTTYPE (MATRIX *p);                3   2   Position of destination
+SETMDESTTYPE (MATRIX *p,INT n);               VECTOR
+
+MDIAG (MATRIX *p);                    5   1   True if MATRIX is the diagonal
+SETMDIAG (MATRIX *p,INT n);                   entry. This is the first in
+                                              the MATRIX list of a VECTOR.
+
+MTYPE (MATRIX *p);                    6   6   Number identifying source and
+SETMTYPE (MATRIX *p,INT n);                   dest position in a compact form
+
+MUSED (MATRIX *p);                    12  1   currently not used
+SETMUSED (MATRIX *p,INT n);
+
+MSIZE (MATRIX *p);                    13  15  Size of the MATRIX in bytes
+SETMSIZE (MATRIX *p,INT n);
+
+MNEW (MATRIX *p);                     28  1   True if MATRIX has been 
+SETMNEW (MATRIX *p,INT n);                    allocated in last refinement
+
+CEXTRA (MATRIX *p);                   29  1   Returns value of EXTRA flag
+SETCEXTRA (MATRIX *p,INT n);                  only valid for first matrix
+                                              of a connection.
+
+MDOWN (MATRIX *p);                    30  1   Input for ordering algorithm
+SETMDOWN (MATRIX *p,INT n);
+
+MUP (MATRIX *p);                      31  1   Input for ordering algorithm
+SETMUP (MATRIX *p,INT n);
+-----------------------------------------------------------------------------
+\endverbatim
+
+\sa VECTOR, CONNECTION.
+
+*/
+
+/*D
+CONNECTION - Data type combing one or two MATRIX structures
+
+STRUCTURES:
+
+\verbatim
+typedef struct matrix CONNECTION;
+\endverbatim
+
+DESCRIPTION:
+
+The CONNECTION data type consists of two MATRIX objects stored consecutively
+in memory. If it is a diagonal entry of the stiffness matrix it consists of only
+`one` MATRIX. Since the MATRIX objects size is determined at run-time the
+CONNECTION is defined as a MATRIX.
+
+MACROS:
+
+\verbatim
+MATRIX *CMATRIX0 (CONNECTION *c);
+MATRIX *CMATRIX1 (CONNECTION *c);
+\endverbatim
+
+Pointer to first and second matrix of a CONNECTION.
+
+\verbatim
+void SETCUSED (CONNECTION *c, INT n);
+\endverbatim
+
+Executes MUSED macro for both MATRIX objects of a CONNECTION. 
+
+\sa
+
+MATRIX, VECTOR.
+
+D*/
+
+
+/*! \struct grid
+
+ \brief Data type giving access to all objects on a grid level
+
+The GRID data type provides access to all objects defined on a grid level.
+All the pointers to the first list elements are there.
+
+. control - used bitwise as usual.
+
+. status - A word storing status information. This can be used also by the
+problem class, e.g. to store whether the grid level is assembled or not.
+
+. level - Level within the MULTIGRID structure.
+
+. nVert - Number of VERTEX objects used on that grid level.
+
+. nNode - Number of NODE objects used on that grid level.
+
+. nElem - Number of ELEMENT objects used on that grid level.
+
+. nEdge - Number of EDGE objects used on that grid level.
+
+. nVector - Number of VECTOR objects used on that grid level.
+
+. nCon - Number of CONNECTION objects used on that grid level.
+
+. elements,lastelement - Pointers to first and last element of the
+ELEMENT list.
+
+. vertices,lastvertex - Pointers to first and last VERTEX of that grid level.
+
+. firstNode,lastNode - Pointers to first and last NODE on that level.
+
+. firstVector,lastVector - Pointers to first and last VECTOR
+on that grid level.
+
+. coarser,finer - Pointers to finer and coarser grid levels within
+the MULTIGRID structure. A NULL pointer indicates that
+a grid level does not exist.
+
+. mg - Pointer to corresponding MULTIGRID structure.
+
+MACROS:
+
+\verbatim
+INT GLEVEL (GRID *p);
+\endverbatim
+
+Returns the level of the GRID within the MULTIGRID structure.
+
+\verbatim
+INT GSTATUS (GRID *p);
+\endverbatim
+
+Returns grid status field. Bit 0 of the grid status is set to 1 if this
+grid level has been manipulated in the last refinement step.
+
+\verbatim
+void SETGSTATUS (GRID *p,n);
+void RESETGSTATUS (GRID *p,n);
+\endverbatim
+
+Set or reset all bits that are 1 in the mask n.
+
+\verbatim
+ELEMENT *FIRSTELEMENT (GRID *p);
+ELEMENT *LASTELEMENT (GRID *p);
+\endverbatim
+
+Return pointers to first and last ELEMENT.
+
+\verbatim
+VERTEX *FIRSTVERTEX (GRID *p);
+VERTEX *LASTVERTEX (GRID *p);
+\endverbatim
+
+Return pointers to first and last VERTEX of the GRID.
+
+\verbatim
+NODE *FIRSTNODE (GRID *p);
+NODE *LASTNODE (GRID *p);
+\endverbatim
+
+Return pointer to first and last NODE on that grid level.
+
+\verbatim
+VECTOR *FIRSTVECTOR (GRID *p);
+VECTOR *LASTVECTOR (GRID *p);
+\endverbatim
+
+Return pointer to first and last VECTOR of that grid level.
+
+\verbatim
+GRID *UPGRID (GRID *p);
+GRID *DOWNGRID (GRID *p);
+\endverbatim
+
+Return pointer to finer and coarser grid levels.
+
+\verbatim
+MULTIGRID *MYMG (GRID *p);
+\endverbatim
+
+Return pointer to associated MULTIGRID structure.
+
+\verbatim
+INT NV (GRID *p);
+INT NN (GRID *p);
+INT NT (GRID *p);
+INT NE (GRID *p);
+INT NS (GRID *p);
+INT NVEC (GRID *p);
+INT NC (GRID *p);
+\endverbatim
+
+Return number of VERTEX (NV), NODE (NN), ELEMENT (NT), EDGE (NE), VECTOR (NVEC) and CONNECTION (NC) objects allocated on that grid level.
+
+CONTROL WORDS:
+
+No entries of the control word are currently used.
+
+\sa MULTIGRID, ELEMENT, NODE, VERTEX, VECTOR, MATRIX.
+
+*/
+
+/*! \struct multigrid
+ * \brief Data type representing a complete multigrid structure
+
+
+Data type providing access to all information about the complete
+multigrid hierarchy, problem description and memory management information.
+This is the root of all.
+
+. v - The MULTIGRID is an environment item, i.e. it resides in the environment
+tree. v stores also the name of the MULTIGRID as it is declared in the new
+and open commands.
+
+. vertIdCounter,nodeIdCounter,elemIdCounter - Counters used to assign unique
+identification numbers to VERTEX, NODE and ELEMENT objects. The counter
+wraps around after 2 to the power of 32 objects have been allocated!
+
+. topLevel - Finest grid level currently allocated in the MULTIGRID.
+
+. currentLevel - Any number between 0 and topLevel. The currentLevel
+is used by many commands that work on a grid level as default value. It can
+be changed with the level command from the UG shell. 
+
+. theDomain - Pointer to a DOMAIN structure that is to be used for the
+mesh described by the MULTIGRID.
+
+. theFormat - Pointer to a FORMAT structure describing all parameters
+of the UG data structure that can be selected at run-time.  Especially
+there are a lot of user definable data spaces in the basic objects.
+
+. theProblem - Pointer to a PROBLEM structure giving access to the
+user defined coefficient functions and boundary conditions that are
+appropriate for the selected problem class.
+
+. numOfSegments - Number of BNDSEGDESC structures accessible in the segments
+array. This corresponds to the number of boundary segments in theDomain.
+
+. numOfSegments - Number of subdomains, used for the grid generator.
+
+. segments - Array of BNDSEGDESC structures. Index `i` in that array corresponds
+to boundary segment `i`.
+
+. corners - Array of pointers to VERTEX structures that are allocated at the
+`corners` of theDomain. 
+
+. numOfCorners - Number of corners of theDomain. This is also the size of the
+corners array.
+
+. theHeap - Pointer to a HEAP structure allocated for that MULTIGRID. The size
+of this heap is selected with the open or new commands.
+
+. grids - Array of pointers to GRID structures representing the individual
+levels of the multigrid hierarchy.
+
+. freeObjects - List of free objects sorted by object number. Memory management in
+UG is such that new memory for an object is only allocated when no free object of the requested type
+is available. If an object is no longer needed (e.g. when coarsening a mesh) it is
+inserted in the appropriate list of free objects.
+
+. freeVectors,freeConnections - List of free VECTOR and CONNECTION
+objects sorted by type. Same comment as for freeObjects applies.
+
+. GenData - Management of general user data space in multigrid. At initialisation time
+different modules can (pre)allocate storage which will (actually) be allocated in
+each multigrid when it is opened. Storage is allocated and addressed by calls of
+DefineMGUDBlock and GetMGUDBlockDescriptor resp. See also the macros below.
+
+MACROS:
+
+\verbatim
+INT MGSTATUS (MULTIGRID *mg);
+\endverbatim 
+
+Return multigrid status. This is a macro, so assignment MGSTATUS(mg)=0 is
+also allowed.
+
+\verbatim
+INT VIDCNT (MULTIGRID *mg);
+INT NIDCNT (MULTIGRID *mg);
+INT EIDCNT (MULTIGRID *mg);
+\endverbatim
+
+Access to values of the vertex, node and element id counters.
+
+\verbatim
+INT TOPLEVEL (MULTIGRID *mg);
+INT CURRENTLEVEL (MULTIGRID *mg);
+\endverbatim
+
+Access to top and current level.
+
+\verbatim
+DOMAIN *MGDOMAIN (MULTIGRID *mg);
+FORMAT *MGFORMAT (MULTIGRID *mg);
+PROBLEM *MGPROBLEM (MULTIGRID *mg);
+\endverbatim
+Returns pointer to DOMAIN, FORMAT and PROBLEM associated with the MULTIGRID.
+
+\verbatim
+BOUNDARY_SEGMENT *MG_GEOM_SEGMENT (MULTIGRID *mg,INT i);
+\endverbatim
+
+Returns a pointer to the ith boundary segment of the domain.
+
+\verbatim
+BNDSEGDESC *MGBNDSEGDESC (MULTIGRID *mg,INT i);
+\endverbatim
+
+Returns a pointer to the ith BNDSEGDESC structure of the segments array.
+
+\verbatim
+INT MGNOOFSEG (MULTIGRID *mg);
+\endverbatim
+
+Returns number of boundary segments of the domain associated with the MULTIGRID.
+
+\verbatim
+VERTEX *MGVERTEX (MULTIGRID *mg,k);
+\endverbatim
+Returns a pointer to the kth corner VERTEX of the domain.
+
+\verbatim
+INT MGNOOFCORNERS (MULTIGRID *mg);
+\endverbatim
+Returns the number of corners of the domain associated with the MULTIGRID.
+
+\verbatim
+HEAP *MGHEAP (MULTIGRID *mg);
+\endverbatim
+Returns a pointer to the multigrids HEAP.
+
+\verbatim
+GRID *GRID_ON_LEVEL (MULTIGRID *mg,INT i);
+\endverbatim
+Returns a pointer to the ith grid level of the MULTIGRID.
+
+\verbatim
+char *MGNAME (MULTIGRID *mg);
+\endverbatim
+Returns the name of the multigrid from the environment item.
+
+\verbatim
+HEAP *MG_USER_HEAP(MULTIGRID *mg);
+\endverbatim
+Returns the multigrid user data heap pointer. The heapsize is determined by the
+FORMAT definition.
+
+\verbatim
+void *GEN_MGUD(MULTIGRID *mg);
+\endverbatim
+Returns the address of the general multigrid user data.
+
+\verbatim
+void *GEN_MGUD_ADR(MULTIGRID *mg, MEM offset);
+\endverbatim
+Returns the address of a block with a certain offset (in bytes)
+in the general multigrid user data. To be used in conjunction with
+
+\verbatim
+MEM OFFSET_IN_MGUD(INT BlockID);
+\endverbatim
+Returns the offset of a previously allocated block in the general multigrid
+user data.
+
+Example:
+.n  GEN_MGUD_ADR(myMG,OFFSET_IN_MGUD(myBlock)) will yield the desired memory address
+
+\sa DOMAIN, PROBLEM, FORMAT, GRID, HEAP, GEOM_OBJECT.
+
+*/
+
+/*! \union geom_object
+
+ \brief Union of all geometric objects
+
+typedef union geom_object GEOM_OBJECT;
+\endverbatim
+
+	DESCRIPTION:
+	This data type unifies all data types that can have references to a 
+	VECTOR structure. This type is never used for allocation.
+
+    MACROS:
+    No macros are provided to for that data type.
+*/
+
